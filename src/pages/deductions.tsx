@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { Table, Loader, Title, Text, Paper, Group, TextInput, Select, Button, Badge } from "@mantine/core";
 // Status color mapping (same as dashboard)
-const statusHexColors = {
+const statusHexColors: Record<string, string> = {
   Paid: "#20c997",
   "Under process": "#228be6",
   Cancelled: "#fa5252",
@@ -17,7 +17,7 @@ function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
 
-const deductionFieldMap = {
+const deductionFieldMap: Record<string, string> = {
   "TDS": "tds",
   "BOCW": "bocw",
   "Retention": "retention",
@@ -30,12 +30,31 @@ const deductionFieldMap = {
   "Other Deduction": "otherDeduction",
 };
 
+// Financial year options (should match dashboard)
+function getFinancialYearOptions(currentYear = 2025, count = 5) {
+  const options: { value: string; label: string; range: Date[] | null }[] = [
+    { value: 'all', label: 'Select Financial Year', range: null },
+  ];
+  for (let i = 0; i < count; i++) {
+    const startYear = currentYear - i;
+    const endYear = startYear + 1;
+    const label = `FY ${startYear}-${String(endYear).slice(-2)}`;
+    const range = [
+      new Date(`${startYear}-04-01T00:00:00.000Z`),
+      new Date(`${endYear}-03-31T23:59:59.999Z`)
+    ];
+    options.push({ value: `${startYear}-${endYear}`, label, range });
+  }
+  return options;
+}
+const financialYearOptions = getFinancialYearOptions(2025, 5);
+
 export default function DeductionsPage() {
   const navigate = useNavigate();
   const query = useQuery();
   const deductionType = query.get("type") || "TDS";
   const field = deductionFieldMap[deductionType] || "tds";
-  const [invoices, setInvoices] = useState([]);
+  const [invoices, setInvoices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const status = query.get("status") || "all";
@@ -57,24 +76,7 @@ export default function DeductionsPage() {
     dateRange = [start ? new Date(start) : null, end ? new Date(end) : null];
   }
 
-  // Financial year options (should match dashboard)
-  function getFinancialYearOptions(currentYear = 2025, count = 5) {
-    const options = [
-      { value: 'all', label: 'Select Financial Year', range: null },
-    ];
-    for (let i = 0; i < count; i++) {
-      const startYear = currentYear - i;
-      const endYear = startYear + 1;
-      const label = `FY ${startYear}-${String(endYear).slice(-2)}`;
-      const range = [
-        new Date(`${startYear}-04-01T00:00:00.000Z`),
-        new Date(`${endYear}-03-31T23:59:59.999Z`)
-      ];
-      options.push({ value: `${startYear}-${endYear}`, label, range });
-    }
-    return options;
-  }
-  const financialYearOptions = getFinancialYearOptions(2025, 5);
+
 
   useEffect(() => {
     const fetchInvoices = async () => {
@@ -86,6 +88,7 @@ export default function DeductionsPage() {
         });
         setInvoices(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
+        console.error(err);
         setInvoices([]);
       } finally {
         setLoading(false);

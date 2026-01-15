@@ -724,8 +724,8 @@ const Dashboard2 = () => {
                       billCategory ? `billCategory=${encodeURIComponent(billCategory)}` : '',
                       financialYear && financialYear !== 'all' ? `financialYear=${encodeURIComponent(financialYear)}` : '',
                       (dateRange && dateRange[0] && dateRange[1]) ? (() => {
-                        const start = dateRange[0] instanceof Date ? dateRange[0] : new Date(dateRange[0]);
-                        const end = dateRange[1] instanceof Date ? dateRange[1] : new Date(dateRange[1]);
+                        const start = new Date(dateRange[0]);
+                        const end = new Date(dateRange[1]);
                         return `dateRange=${encodeURIComponent(start.toISOString())},${encodeURIComponent(end.toISOString())}`;
                       })() : '',
                       statusParam
