@@ -34,6 +34,7 @@ import {
   Button,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
+import type { Invoice } from '../interface/Invoice';
 import { DonutChart } from '@mantine/charts';
 import { motion } from 'framer-motion';
 
@@ -344,7 +345,7 @@ function PieChart({ data, projectFilter }: PieChartProps) {
 // --- Main Dashboard Component ---
 
 const Dashboard2 = () => {
-  const [invoices, setInvoices] = useState<any[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
   // const [loading, setLoading] = useState(true); // Unused
   
   // Filter States
@@ -397,8 +398,8 @@ const Dashboard2 = () => {
     fetchInvoices();
   }, []);
 
-  const filteredInvoices = useMemo<any[]>(() => {
-    return invoices.filter((inv: any) => {
+  const filteredInvoices = useMemo<Invoice[]>(() => {
+    return invoices.filter((inv: Invoice) => {
       let match = true;
       if (project !== 'All Projects' && inv.project !== project) match = false;
       if (state !== 'All States' && inv.state !== state) match = false;
@@ -432,13 +433,13 @@ const Dashboard2 = () => {
   const overdueByProject = useMemo<OverdueBarChartData[] | null>(() => {
     if (!(statusFilter.length === 1 && statusFilter[0] === 'Under process')) return null;
     const now = Date.now();
-    const filtered = filteredInvoices.filter((inv: any) => String(inv.status || '').trim() === 'Under process');
-    const projectFiltered = project !== 'All Projects' ? filtered.filter((inv: any) => inv.project === project) : filtered;
+    const filtered = filteredInvoices.filter((inv: Invoice) => String(inv.status || '').trim() === 'Under process');
+    const projectFiltered = project !== 'All Projects' ? filtered.filter((inv: Invoice) => inv.project === project) : filtered;
     
     const agingCounts: Record<string, { invoiceDate: number; submissionDate: number }> = {};
     agingPeriods.forEach(period => { agingCounts[period.label] = { invoiceDate: 0, submissionDate: 0 }; });
     
-    projectFiltered.forEach((inv: any) => {
+    projectFiltered.forEach((inv: Invoice) => {
       const invDate = inv.invoiceDate ? new Date(inv.invoiceDate).getTime() : null;
       if (invDate && !isNaN(invDate)) {
         const ageInMs = now - invDate;
@@ -472,7 +473,7 @@ const Dashboard2 = () => {
   const deductionFields = useMemo(() => {
     const totals: Record<string, number> = {};
     deductionLabels.forEach(label => { totals[label] = 0; });
-    filteredInvoices.forEach((inv: any) => {
+    filteredInvoices.forEach((inv: Invoice) => {
       totals['TDS'] += Number(inv.tds || 0);
       totals['BOCW'] += Number(inv.bocw || 0);
       totals['Retention'] += Number(inv.retention || 0);
@@ -500,7 +501,13 @@ const Dashboard2 = () => {
   const projectRevenue = useMemo(() => {
     const map: Record<string, { raised: number; approved: number }> = {};
     filteredInvoices.forEach(inv => {
-      const proj = inv.project || 'Unknown';
+      let mainProject = 'Unknown';
+      if (Array.isArray(inv.project)) {
+         mainProject = inv.project[0] || 'Unknown';
+      } else {
+         mainProject = inv.project || 'Unknown';
+      }
+      const proj = mainProject;
       if (!map[proj]) map[proj] = { raised: 0, approved: 0 };
       map[proj].raised += Number(inv.invoiceBasicAmount || 0);
       map[proj].approved += Number(inv.passedAmountByClient || 0);
@@ -818,8 +825,8 @@ const Dashboard2 = () => {
                 })
                 .slice(0, 10)
                 .map((invoice) => {
-                const basicAmount = Number(invoice.basicAmount ?? invoice.invoiceBasicAmount ?? 0);
-                const gstAmount = Number(invoice.gstAmount ?? invoice.invoiceGstAmount ?? 0);
+                const basicAmount = Number(invoice.invoiceBasicAmount ?? 0);
+                const gstAmount = Number(invoice.invoiceGstAmount ?? 0);
                 const totalAmount = Number(invoice.totalAmount ?? 0);
                 const totalDeduction = Number(invoice.totalDeduction ?? 0);
                 const netPayable = Number(invoice.netPayable ?? 0);

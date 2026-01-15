@@ -8,8 +8,8 @@ import {
   Group,
   Title,
 } from "@mantine/core";
-import { useMemo } from "react";
-import type { Invoice } from "@/interface/Invoice";
+
+import type { Invoice } from "../interface/Invoice";
 
 type InvoicePopupProps = {
   opened: boolean;

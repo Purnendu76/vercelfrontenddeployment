@@ -23,7 +23,7 @@ import { IconSearch, IconPlus, IconEdit, IconTrash, IconDownload, IconEye, IconU
 import axios from "axios";
 import InvoiceForm from "../components/InvoiceForm";
 import InvoicePopup from "./InvoicePopup";
-import type { Invoice } from "@/interface/Invoice";
+import type { Invoice } from "../interface/Invoice";
 import { modals } from "@mantine/modals";
 import { notifySuccess, notifyError } from "../lib/utils/notify";
 import Cookies from "js-cookie";
@@ -31,19 +31,21 @@ import { Link } from "react-router-dom";
 import * as XLSX from "xlsx";
 
 // Utility function to format date as '12 April 2025'
-function formatDateToLong(dateInput: string | null | undefined): string {
+function formatDateToLong(dateInput: Date | string | null | undefined): string {
   if (!dateInput) return "-";
-  const [y, m, d] = dateInput.split("-").map(Number);
-  if (!y || !m || !d) return "-";
-  const date = new Date(y, m - 1, d);
-  return `${date.getDate()} ${date.toLocaleString("en-US", { month: "long" })} ${date.getFullYear()}`;
+  const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
+  if (isNaN(date.getTime())) return "-";
+  const day = date.getDate();
+  const month = date.toLocaleString("en-US", { month: "long" });
+  const year = date.getFullYear();
+  return `${day} ${month} ${year}`;
 }
 
 // --- HELPER FUNCTIONS ---
 
 // 1. Fuzzy Header Normalizer: "Balance / Pending Amount" -> "balancependingamount"
 // This fixes issues where Excel has extra spaces or newlines in headers
-const normalizeHeader = (header: any) => {
+const normalizeHeader = (header: unknown) => {
   if (!header) return "";
   return String(header).toLowerCase().replace(/[^a-z0-9]/g, "");
 };
@@ -53,7 +55,7 @@ const normalizeHeader = (header: any) => {
 // - FORCES 2 decimal places. 
 // - Example: "₹ 1,200.32555" -> 1200.33
 // - Example: "0.00" (visual) -> 0
-const cleanAmountStrict = (val: any): number | null => {
+const cleanAmountStrict = (val: unknown): number | null => {
   if (val === null || val === undefined || val === "") return null;
   
   // Convert to string and strip non-numeric characters (allow . and -)
@@ -150,7 +152,7 @@ export default function Admin_invoice() {
       }));
 
       // Sort by createdAt descending (most recent first)
-      normalized.sort((a: any, b: any) => {
+      normalized.sort((a: Invoice, b: Invoice) => {
         const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
         const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
         return bDate - aDate;
@@ -342,7 +344,7 @@ export default function Admin_invoice() {
     return n.toFixed(2);
   };
 
-  const parseExcelDate = (val: any): string | null => {
+  const parseExcelDate = (val: unknown): string | null => {
     if (!val) return null;
     if (typeof val === "number") {
       const d = XLSX.SSF.parse_date_code(val);
@@ -419,8 +421,8 @@ export default function Admin_invoice() {
       const errors: string[] = [];
 
       for (let i = 0; i < dataRows.length; i++) {
-        const row: any = dataRows[i]; // This is an array: ["Project1", "Paid", "100.00"]
-        const payload: any = { userId };
+        const row = dataRows[i] as unknown[]; // This is an array: ["Project1", "Paid", "100.00"]
+        const payload: Record<string, unknown> = { userId };
         let hasData = false;
 
         console.log("Processing row:", row);
@@ -479,20 +481,25 @@ export default function Admin_invoice() {
           });
 
           setImportProgress(p => ({ ...p, current: p.current + 1 }));
-        } catch (e: any) {
-          errors.push(`Row ${i + 2}: ${e.message}`);
+        } catch (e) {
+          const errorMessage = e instanceof Error ? e.message : String(e);
+          errors.push(`Row ${i + 2}: ${errorMessage}`);
         }
       }
 
       setImportErrors(errors);
 
-      errors.length
-        ? notifyError(`${errors.length} row(s) failed`)
-        : notifySuccess("Invoices imported successfully");
+
+      if (errors.length) {
+        notifyError(`${errors.length} row(s) failed`);
+      } else {
+        notifySuccess("Invoices imported successfully");
+      }
 
       await fetchInvoices();
-    } catch (err: any) {
-      notifyError("Import failed: " + err.message);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      notifyError("Import failed: " + msg);
       console.error(err);
     } finally {
       setImporting(false);
@@ -540,7 +547,7 @@ export default function Admin_invoice() {
           <DatePickerInput
             type="range"
             value={dateRange}
-            onChange={setDateRange}
+            onChange={(val) => setDateRange(val as [Date | null, Date | null])}
             placeholder="Date range"
             radius="md"
             style={{ minWidth: 220 }}
@@ -615,8 +622,8 @@ export default function Admin_invoice() {
             </Table.Thead>
             <Table.Tbody>
               {visibleInvoices.map((invoice) => {
-                const basicAmount = Number(invoice.basicAmount ?? 0);
-                const gstAmount = Number(invoice.gstAmount ?? 0);
+                const basicAmount = Number(invoice.invoiceBasicAmount ?? 0);
+                const gstAmount = Number(invoice.invoiceGstAmount ?? 0);
                 const totalAmount = Number(invoice.totalAmount ?? 0);
                 const totalDeduction = Number(invoice.totalDeduction ?? 0);
                 const netPayable = Number(invoice.netPayable ?? 0);

@@ -29,7 +29,7 @@ import Cookies from "js-cookie";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { getUserRole } from "../lib/utils/getUserRole";
-import type { Invoice } from "@/interface/Invoice";
+import type { Invoice } from "../interface/Invoice";
 
 export default function InvoiceDetails() {
   const { invoiceNumber } = useParams<{ invoiceNumber: string }>();
@@ -185,8 +185,8 @@ export default function InvoiceDetails() {
     doc.text("Financial Breakdown", 14, finalY);
     finalY += 6;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const totalDeductionVal = num((invoice as any).totalDeduction || invoice.totalDeductions);
+
+    const totalDeductionVal = num(invoice.totalDeduction);
     const netPayable = num(invoice.netPayable as number | string);
     const balance = num(invoice.balance);
 

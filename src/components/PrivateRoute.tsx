@@ -7,7 +7,7 @@ type PrivateRouteProps = {
   allowedRoles?: Array<"Admin" | "user" | "accountant">;
 };
 
-import { useLocation } from "react-router-dom";
+
 
 export default function PrivateRoute({ children, allowedRoles }: PrivateRouteProps) {
   const role = getUserRole();
@@ -17,7 +17,7 @@ export default function PrivateRoute({ children, allowedRoles }: PrivateRoutePro
   if (!role) return <Navigate to="/" replace />;
 
   // ✅ If role not allowed, block
-  if (allowedRoles && !allowedRoles.includes(role)) {
+  if (allowedRoles && !allowedRoles.includes(role as "Admin" | "user" | "accountant")) {
     return <Navigate to="/" replace />;
   }
 

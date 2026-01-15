@@ -1,15 +1,15 @@
-import type { ReactNode } from "react";
+
 
 export type Invoice = {
   items: string;
-  netPayable: ReactNode;
-  totalDeductions: ReactNode;
+  netPayable: string | number;
+  totalDeduction: string | number;
   bocw: string;
   ld: string;
   slaPenalty: string;
   penalty: string;
   otherDeduction: string;
-  mybillCategory: null;
+  mybillCategory: string | null;
   lowDepthDeduction: string;
   gstTds: string;
   tds: string;
@@ -20,10 +20,11 @@ export type Invoice = {
   passedAmountByClient: string;
   gstPercentage: string;
   invoiceBasicAmount: string;
+  invoiceGstAmount?: number;
   submissionDate:  Date| null;
   milestone: string;
-  state: null;
-  modeOfProject: null;
+  state: string | null;
+  modeOfProject: string | null;
   // project can be a single string, an array of project strings, or null
   project: string | string[] | null;
   id: string;
@@ -33,4 +34,9 @@ export type Invoice = {
   amountPaidByClient: number;
   balance: number;
   status: string;
+  invoice_copy_path?: string | null;
+  proof_of_submission_path?: string | null;
+  supporting_docs_path?: string | null;
+  createdAt?: string | Date; // Added for sorting
+  updatedAt?: string | Date;
 };

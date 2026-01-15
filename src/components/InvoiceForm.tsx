@@ -14,8 +14,6 @@ import {
   Paper,
   Divider,
   FileInput,
-  ActionIcon,
-  Tooltip,
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import axios from "axios";
@@ -23,7 +21,17 @@ import { notifySuccess, notifyError, notifyWarning } from "../lib/utils/notify";
 import { usePrefillInvoiceForm } from "../hooks/usePrefillInvoiceForm";
 import type { Invoice } from "@/interface/Invoice";
 import Cookies from "js-cookie";
-import { IconUpload, IconEye, IconTrash } from "@tabler/icons-react";
+import { IconUpload } from "@tabler/icons-react";
+
+// Project to mode mapping
+const projectModeMap: Record<string, string> = {
+  "NFS": "Back To Back",
+  "GAIL": "Direct",
+  "BGCL": "Direct",
+  "STP": "Direct",
+  "Bharat Net": "Direct",
+  "NFS AMC": "Back To Back",
+};
 
 type InvoiceFormProps = {
   onSubmit?: (data: { client: string; amount: number }) => void;
@@ -77,15 +85,7 @@ export default function InvoiceForm({
 
   const [mode, setMode] = useState<string | null>(null);
 
-  // Project to mode mapping
-  const projectModeMap: Record<string, string> = {
-    "NFS": "Back To Back",
-    "GAIL": "Direct",
-    "BGCL": "Direct",
-    "STP": "Direct",
-    "Bharat Net": "Direct",
-    "NFS AMC": "Back To Back",
-  };
+
 
   // Set mode automatically when project changes
   useEffect(() => {
@@ -126,7 +126,6 @@ export default function InvoiceForm({
   const [existingInvoiceCopy, setExistingInvoiceCopy] = useState<string | null>(null);
   const [existingProofOfSubmission, setExistingProofOfSubmission] = useState<string | null>(null);
   const [existingSupportingDocs, setExistingSupportingDocs] = useState<string | null>(null);
-  const [removingFile, setRemovingFile] = useState(false);
 
   // Default status
   const [status, setStatus] = useState<string | null>("Under process");
@@ -214,25 +213,7 @@ export default function InvoiceForm({
     setSupportingDocs(null);
   }, [initialValues]);
 
-  // Remove file handler for each document
-  const handleRemoveFile = async (type: 'invoiceCopy' | 'proofOfSubmission' | 'supportingDocs') => {
-    if (!initialValues?.id) return;
-    setRemovingFile(true);
-    try {
-      const baseEndpoint = userRole === "Admin" ? "/api/v1/invoices" : "/api/v1/user-invoices";
-      await axios.delete(`${baseEndpoint}/${initialValues.id}/file?type=${type}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (type === 'invoiceCopy') setExistingInvoiceCopy(null);
-      if (type === 'proofOfSubmission') setExistingProofOfSubmission(null);
-      if (type === 'supportingDocs') setExistingSupportingDocs(null);
-      notifySuccess("File removed successfully");
-    } catch (err) {
-      notifyError("Failed to remove file");
-    } finally {
-      setRemovingFile(false);
-    }
-  };
+
 
   // Derived values
   const gstAmount =
@@ -315,7 +296,6 @@ export default function InvoiceForm({
 
     try {
       setLoading(true);
-      let res;
       const baseEndpoint =
         userRole === "Admin" ? "/api/v1/invoices" : "/api/v1/user-invoices";
       const authToken =
@@ -375,12 +355,12 @@ export default function InvoiceForm({
       if (supportingDocs) formData.append("supportingDocs", supportingDocs);
 
       if (initialValues?.id) {
-        res = await axios.put(`${baseEndpoint}/${initialValues.id}`, formData, {
+        await axios.put(`${baseEndpoint}/${initialValues.id}`, formData, {
           headers: { Authorization: `Bearer ${authToken}` },
         });
         notifySuccess("Invoice updated successfully ✅");
       } else {
-        res = await axios.post(baseEndpoint, formData, {
+        await axios.post(baseEndpoint, formData, {
           headers: { Authorization: `Bearer ${authToken}` },
         });
         notifySuccess("Invoice submitted successfully ✅");
@@ -519,7 +499,7 @@ export default function InvoiceForm({
                     label="Basic Amount"
                     value={basicAmount}
                     decimalScale={2}
-                    onChange={(val) =>
+                    onChange={(val: number | string) =>
                       // Only allow up to 2 decimal places
                       setBasicAmount(
                         typeof val === "number"
@@ -529,13 +509,7 @@ export default function InvoiceForm({
                     }
                     required
                     step={0.01}
-                    inputMode="decimal"
-                    parser={(value) => value?.replace(/[^0-9.]/g, "") ?? ""}
-                    formatter={(value) =>
-                      value && value.includes(".")
-                        ? value.replace(/(\.[0-9]{2}).*$/, "$1")
-                        : value || ""
-                    }
+                    min={0}
                   />
                 </Group>
 
@@ -666,7 +640,7 @@ export default function InvoiceForm({
                     label="Passed Amount by Client"
                     value={passedAmount}
                     decimalScale={2}
-                    onChange={(val) =>
+                    onChange={(val: number | string) =>
                       setPassedAmount(typeof val === "number" ? val : "")
                     }
                   />
@@ -676,7 +650,7 @@ export default function InvoiceForm({
                       label="Retention"
                       value={retention}
                       decimalScale={2}
-                      onChange={(val) =>
+                      onChange={(val: number | string) =>
                         setRetention(typeof val === "number" ? val : "")
                       }
                     />
@@ -684,7 +658,7 @@ export default function InvoiceForm({
                       label="GST Withheld"
                       value={gstWithheld}
                       decimalScale={2}
-                      onChange={(val) =>
+                      onChange={(val: number | string) =>
                         setGstWithheld(typeof val === "number" ? val : "")
                       }
                     />
@@ -695,7 +669,7 @@ export default function InvoiceForm({
                       label="TDS"
                       decimalScale={2}
                       value={tds}
-                      onChange={(val) =>
+                      onChange={(val: number | string) =>
                         setTds(typeof val === "number" ? val : "")
                       }
                     />
@@ -703,7 +677,7 @@ export default function InvoiceForm({
                       label="GST TDS"
                       decimalScale={2}
                       value={gstTds}
-                      onChange={(val) =>
+                      onChange={(val: number | string) =>
                         setGstTds(typeof val === "number" ? val : "")
                       }
                     />
@@ -714,7 +688,7 @@ export default function InvoiceForm({
                       label="BOCW"
                       decimalScale={2}
                       value={bocw}
-                      onChange={(val) =>
+                      onChange={(val: number | string) =>
                         setBocw(typeof val === "number" ? val : "")
                       }
                     />
@@ -722,7 +696,7 @@ export default function InvoiceForm({
                       label="Low Depth Ded."
                       decimalScale={2}
                       value={lowDepth}
-                      onChange={(val) =>
+                      onChange={(val: number | string) =>
                         setLowDepth(typeof val === "number" ? val : "")
                       }
                     />
@@ -733,7 +707,7 @@ export default function InvoiceForm({
                       label="LD"
                       decimalScale={2}
                       value={ld}
-                      onChange={(val) =>
+                      onChange={(val: number | string) =>
                         setLd(typeof val === "number" ? val : "")
                       }
                     />
@@ -741,7 +715,7 @@ export default function InvoiceForm({
                       label="SLA Penalty"
                       decimalScale={2}
                       value={slaPenalty}
-                      onChange={(val) =>
+                      onChange={(val: number | string) =>
                         setSlaPenalty(typeof val === "number" ? val : "")
                       }
                     />
@@ -752,7 +726,7 @@ export default function InvoiceForm({
                       label="Penalty"
                       decimalScale={2}
                       value={penalty}
-                      onChange={(val) =>
+                      onChange={(val: number | string) =>
                         setPenalty(typeof val === "number" ? val : "")
                       }
                     />
@@ -760,7 +734,7 @@ export default function InvoiceForm({
                       label="Other Ded."
                       decimalScale={2}
                       value={otherDeduction}
-                      onChange={(val) =>
+                      onChange={(val: number | string) =>
                         setOtherDeduction(typeof val === "number" ? val : "")
                       }
                     />
@@ -799,7 +773,7 @@ export default function InvoiceForm({
                     <NumberInput
                       label="Amount Paid By Client"
                       value={amountPaid}
-                      onChange={(val) =>
+                      onChange={(val: number | string) =>
                         setAmountPaid(typeof val === "number" ? val : "")
                       }
                     />

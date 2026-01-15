@@ -6,9 +6,9 @@ import {
   IconLogout,
   IconUsers,
 } from "@tabler/icons-react";
-import { Title, Tooltip, UnstyledButton, Button, Image  } from "@mantine/core";
+import { Button, Image  } from "@mantine/core";
 import { MantineLogo } from "@mantinex/mantine-logo";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import classes from "./DoubleNavbar.module.css";
 import { getUserRole } from "../../lib/utils/getUserRole";
 import Cookies from "js-cookie";
@@ -25,7 +25,7 @@ function parseJwt(token: string | undefined) {
 }
 
 export default function NavbarNested() {
-  const location = useLocation();
+  // const location = useLocation();
   const navigate = useNavigate();
   const role = getUserRole();
 
@@ -75,34 +75,9 @@ const handleLogout = () => {
         ])),
   ];
 
-  const active = mainLinksData.find(
-    (link) => link.path === location.pathname
-  )?.label;
 
-  // Sidebar links: icon only
-  const mainLinks = mainLinksData.map((link) => {
-    const Icon = link.icon;
-    return (
-      <Tooltip
-        label={link.label}
-        position="right"
-        withArrow
-        transitionProps={{ duration: 0 }}
-        key={link.label}
-      >
-        <NavLink
-          to={link.path}
-          className={({ isActive }) =>
-            `${classes.mainLink} ${isActive ? classes.mainLinkActive : ""}`
-          }
-        >
-          <UnstyledButton>
-            <Icon size={24} stroke={2} />
-          </UnstyledButton>
-        </NavLink>
-      </Tooltip>
-    );
-  });
+
+
 
   // Title links: icon + label
   const links = mainLinksData.map((link) => {

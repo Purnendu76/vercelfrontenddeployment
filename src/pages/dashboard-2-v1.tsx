@@ -4,13 +4,13 @@ import {
   IconCheck, 
   IconClock, 
   IconFilter,
-  IconBell,
-  IconSearch
+  IconBell
 } from '@tabler/icons-react';
 // Deduction labels for summary table
 const deductionLabels = [
   'GST', 'TDS', 'BOCW', 'Retention', 'GST Withheld', 'GST TDS', 'Low Depth Deduction', 'LD', 'SLA Penalty', 'Penalty', 'Other Deduction'
 ];
+import type { Invoice } from '../interface/Invoice';
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -24,33 +24,18 @@ import {
   Text,
   Title,
   Select,
-  Table,
   Badge,
-  Loader,
-  SimpleGrid,
-  ScrollArea,
   Box,
   ThemeIcon,
-  rem,
   Paper,
-  RingProgress,
-  Center,
   Avatar,
   ActionIcon,
   Divider,
-  Button,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 
 // Mapped to Mantine color palette names
-const statusColors = {
-  'Paid': 'teal',
-  'Cancelled': 'orange',
-  'Under process': 'blue',
-  'Credit Note Issued': 'gray',
-  'Rejected': 'red',
-  'On Hold': 'yellow',
-};
+
 
 const statusHexColors = {
   'Paid': '#20c997', // teal.5
@@ -68,7 +53,14 @@ const billCategoryOptions = ['', 'Service', 'Supply', 'ROW', 'AMC', 'Restoration
 // --- Sub-Components ---
 
 // 1. Modern KPI Card
-function StatCard({ title, value, icon, color }) {
+interface StatCardProps {
+  title: string;
+  value: number | string;
+  icon: React.ReactNode;
+  color: string;
+}
+
+function StatCard({ title, value, icon, color }: StatCardProps) {
   return (
     <Paper withBorder p="md" radius="md" shadow="xs">
       <Group justify="space-between">
@@ -89,7 +81,13 @@ function StatCard({ title, value, icon, color }) {
 }
 
 // 2. Styled SVG Bar Chart
-function BarChart({ data }) {
+interface BarChartItem {
+  name: string;
+  raised: number;
+  approved: number;
+}
+
+function BarChart({ data }: { data: BarChartItem[] }) {
   if (!data.length) return <Text c="dimmed" size="sm" ta="center" py="xl">No data available</Text>;
   const max = Math.max(...data.map(d => d.raised)) || 100;
   
@@ -102,7 +100,7 @@ function BarChart({ data }) {
   return (
     <Box style={{ overflowX: 'auto' }}>
       <svg width={width} height={height + 30}>
-        {data.map((d, i) => {
+        {data.map((d: BarChartItem, i: number) => {
           const x = 20 + i * (barWidth * 2 + gap);
           const hRaised = (d.raised / max) * height;
           const hApproved = (d.approved / max) * height;
@@ -167,7 +165,13 @@ function BarChart({ data }) {
 import { motion } from "framer-motion";
 import InvoiceLineChart from '../components/dashboardComponent/InvoiceLineChart';
 
-function PieChart({ data }) {
+interface PieChartItem {
+  label: string;
+  value: number;
+  color: string;
+}
+
+function PieChart({ data }: { data: PieChartItem[] }) {
   const total = data.reduce((acc, d) => acc + d.value, 0);
   if (!total) return <Text c="dimmed" size="sm" ta="center">No data</Text>;
 
@@ -184,7 +188,7 @@ function PieChart({ data }) {
   const cy = 80;
 
   // For animation
-  const MotionGroup = motion(Group);
+
 
   return (
     <Card shadow="md" radius="md" p="md" withBorder>
@@ -278,34 +282,34 @@ function PieChart({ data }) {
 // --- Main Dashboard Component ---
 
 const Dashboard2 = () => {
-  const [invoices, setInvoices] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  // const [loading, setLoading] = useState(true); // Unused
   const [project, setProject] = useState('All Projects');
   const [state, setState] = useState('All States');
-  const [billCategory, setBillCategory] = useState('');
-  const [dateRange, setDateRange] = useState([null, null]); // [start, end]
+  const [billCategory, setBillCategory] = useState<string | null>('');
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]); // [start, end]
 
   // --- Logic unchanged ---
   useEffect(() => {
     const fetchInvoices = async () => {
-      setLoading(true);
+      // setLoading(true);
       try {
         const token = Cookies.get('token');
         const res = await axios.get('/api/v1/invoices', {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         setInvoices(Array.isArray(res.data) ? res.data : []);
-      } catch (err) {
+      } catch {
         setInvoices([]);
       } finally {
-        setLoading(false);
+        // setLoading(false);
       }
     };
     fetchInvoices();
   }, []);
 
   const filteredInvoices = useMemo(() => {
-    return invoices.filter(inv => {
+    return invoices.filter((inv: Invoice) => {
       let match = true;
       if (project !== 'All Projects' && inv.project !== project) match = false;
       if (state !== 'All States' && inv.state !== state) match = false;
@@ -313,7 +317,7 @@ const Dashboard2 = () => {
       // Date range filter
       if (dateRange[0] && dateRange[1]) {
         const invDate = inv.invoiceDate ? new Date(inv.invoiceDate) : null;
-        if (!invDate || isNaN(invDate)) return false;
+        if (!invDate || isNaN(invDate.getTime())) return false;
         // Set time to 0:0:0 for start, 23:59:59 for end
         const start = new Date(dateRange[0]);
         start.setHours(0,0,0,0);
@@ -327,7 +331,7 @@ const Dashboard2 = () => {
 
   const summary = useMemo(() => {
     let basic = 0, gst = 0, paid = 0, pending = 0, totalAmount = 0;
-    filteredInvoices.forEach(inv => {
+    filteredInvoices.forEach((inv: Invoice) => {
       basic += Number(inv.invoiceBasicAmount || 0);
       gst += Number(inv.invoiceGstAmount || 0);
       paid += Number(inv.amountPaidByClient || 0);
@@ -338,9 +342,9 @@ const Dashboard2 = () => {
   }, [filteredInvoices]);
 
   const deductionFields = useMemo(() => {
-    const totals = {};
+    const totals: Record<string, number> = {};
     deductionLabels.forEach(label => { totals[label] = 0; });
-    filteredInvoices.forEach(inv => {
+    filteredInvoices.forEach((inv: Invoice) => {
       totals['GST'] += Number(inv.invoiceGstAmount || 0);
       totals['TDS'] += Number(inv.tds || 0);
       totals['BOCW'] += Number(inv.bocw || 0);
@@ -357,20 +361,26 @@ const Dashboard2 = () => {
   }, [filteredInvoices]);
 
   const invoiceStatus = useMemo(() => {
-    const statusMap = {
+    const statusMap: Record<string, number> = {
       'Paid': 0, 'Cancelled': 0, 'Under process': 0, 'Credit Note Issued': 0, 'Rejected': 0, 'On Hold': 0,
     };
-    filteredInvoices.forEach(inv => {
+    filteredInvoices.forEach((inv: Invoice) => {
       const s = String(inv.status || '').trim();
-      if (statusMap.hasOwnProperty(s)) statusMap[s]++;
+      if (Object.prototype.hasOwnProperty.call(statusMap, s)) statusMap[s]++;
     });
-    return Object.entries(statusMap).map(([label, value]) => ({ label, value, color: statusHexColors[label] }));
+    return Object.entries(statusMap).map(([label, value]) => ({ label, value, color: statusHexColors[label as keyof typeof statusHexColors] || '#868e96' }));
   }, [filteredInvoices]);
 
   const projectRevenue = useMemo(() => {
-    const map = {};
-    filteredInvoices.forEach(inv => {
-      const proj = inv.project || 'Unknown';
+    const map: Record<string, { raised: number; approved: number }> = {};
+    filteredInvoices.forEach((inv: Invoice) => {
+      let mainProject = 'Unknown';
+      if (Array.isArray(inv.project)) {
+         mainProject = inv.project[0] || 'Unknown';
+      } else {
+         mainProject = inv.project || 'Unknown';
+      }
+      const proj = mainProject;
       if (!map[proj]) map[proj] = { raised: 0, approved: 0 };
       map[proj].raised += Number(inv.invoiceBasicAmount || 0);
       map[proj].approved += Number(inv.passedAmountByClient || 0);
@@ -407,7 +417,7 @@ const Dashboard2 = () => {
                 placeholder="Select Project" 
                 data={projectOptions} 
                 value={project} 
-                onChange={setProject}
+                onChange={(val) => setProject(val || 'All Projects')}
                 searchable
                 radius="md"
                 variant="filled"
@@ -417,7 +427,7 @@ const Dashboard2 = () => {
                 placeholder="Select State" 
                 data={stateOptions} 
                 value={state} 
-                onChange={setState}
+                onChange={(val) => setState(val || 'All States')}
                 searchable
                 radius="md"
                 variant="filled"
@@ -427,7 +437,7 @@ const Dashboard2 = () => {
               <DatePickerInput
                 type="range"
                 value={dateRange}
-                onChange={setDateRange}
+                onChange={(val) => setDateRange(val as [Date | null, Date | null])}
                 placeholder="Pick date range"
                 radius="md"
                 style={{ minWidth: 220 }}
@@ -535,9 +545,9 @@ const Dashboard2 = () => {
                 label={null}
                 size="xs"
                 data={billCategoryOptions.map(opt => ({ value: opt || '', label: opt || 'All' }))}
-                value={billCategory === '' ? '' : billCategory}
-                onChange={(v) => setBillCategory(v ?? '')}
-                renderValue={(selected) => selected === '' ? 'All' : selected}
+                value={billCategory === '' ? null : billCategory}
+                onChange={(v) => setBillCategory(v || '')}
+                // renderValue removed as it is not a valid prop in V7 Select or caused type error
                 placeholder="Bill Category"
                 mb={8}
                 w="100%"

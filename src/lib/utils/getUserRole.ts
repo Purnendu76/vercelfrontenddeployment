@@ -7,7 +7,7 @@ export type DecodedToken = {
   exp: number;
 };
 
-export function getUserRole(): "Admin" | "user" | null {
+export function getUserRole(): string | null {
 const token = document.cookie
     .split("; ")
     .find(row => row.startsWith("token="))

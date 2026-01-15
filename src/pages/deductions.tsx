@@ -12,6 +12,7 @@ const statusHexColors: Record<string, string> = {
 };
 import Cookies from "js-cookie";
 import { IconSearch, IconArrowLeft } from "@tabler/icons-react";
+import type { Invoice } from "../interface/Invoice";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -54,7 +55,7 @@ export default function DeductionsPage() {
   const query = useQuery();
   const deductionType = query.get("type") || "TDS";
   const field = deductionFieldMap[deductionType] || "tds";
-  const [invoices, setInvoices] = useState<any[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const status = query.get("status") || "all";
@@ -70,11 +71,13 @@ export default function DeductionsPage() {
   const dateRangeStr = query.get("dateRange") || ""; // format: start,end (ISO)
 
   // Parse dateRange if present
-  let dateRange: [Date|null, Date|null] = [null, null];
-  if (dateRangeStr) {
-    const [start, end] = dateRangeStr.split(",");
-    dateRange = [start ? new Date(start) : null, end ? new Date(end) : null];
-  }
+  const dateRange = useMemo<[Date | null, Date | null]>(() => {
+    if (dateRangeStr) {
+      const [start, end] = dateRangeStr.split(",");
+      return [start ? new Date(start) : null, end ? new Date(end) : null];
+    }
+    return [null, null];
+  }, [dateRangeStr]);
 
 
 
@@ -157,7 +160,9 @@ export default function DeductionsPage() {
   // Apply dashboard filters to invoices
   const filtered = useMemo(() => {
     return invoices.filter((inv) => {
-      if (Number(inv[field] || 0) <= 0) return false;
+      // access dynamic field
+      const val = Number(inv[field as keyof Invoice] || 0);
+      if (val <= 0) return false;
       // Project filter (from filter UI)
       if (projectFilter && projectFilter !== 'all' && projectFilter !== 'All Projects' && inv.project !== projectFilter) return false;
       // Status filter (from filter UI)
@@ -284,9 +289,9 @@ export default function DeductionsPage() {
                   const day = d.getDate();
                   const month = d.toLocaleString('en-US', { month: 'long' });
                   const year = d.getFullYear();
-                  return `${day}${month}${year}`;
+                  return `${day} ${month} ${year}`;
                 })() : "-"}</Table.Td>
-                <Table.Td>₹{Number(inv[field] || 0).toFixed(2)}</Table.Td>
+                <Table.Td>₹{Number(inv[field as keyof Invoice] || 0).toFixed(2)}</Table.Td>
                 <Table.Td>
                   <Badge
                     color={

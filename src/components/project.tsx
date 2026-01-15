@@ -107,12 +107,12 @@ export  function Project() {
     let matchesDate = true;
     if (dateRange[0] && dateRange[1]) {
       const invDate = inv.invoiceDate instanceof Date ? inv.invoiceDate : inv.invoiceDate ? new Date(inv.invoiceDate) : null;
-      if (!invDate || isNaN(invDate)) return false;
+      if (!invDate || isNaN(invDate.getTime())) return false;
       const start = new Date(dateRange[0]);
       start.setHours(0,0,0,0);
       const end = new Date(dateRange[1]);
       end.setHours(23,59,59,999);
-      if (invDate < start || invDate > end) matchesDate = false;
+      if (invDate.getTime() < start.getTime() || invDate.getTime() > end.getTime()) matchesDate = false;
     }
 
     return matchesSearch && matchesStatus && matchesDate;
@@ -160,7 +160,7 @@ export  function Project() {
         <DatePickerInput
           type="range"
           value={dateRange}
-          onChange={setDateRange}
+          onChange={(val) => setDateRange(val as [Date | null, Date | null])}
           placeholder="Date range"
           radius="md"
           style={{ minWidth: 220 }}
