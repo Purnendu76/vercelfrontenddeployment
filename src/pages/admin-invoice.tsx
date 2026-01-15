@@ -625,7 +625,7 @@ export default function Admin_invoice() {
                   />
                 </Table.Th>
                 <Table.Th>Invoice No.</Table.Th>
-                <Table.Th>Invoice Date</Table.Th>
+                <Table.Th visibleFrom="sm">Invoice Date</Table.Th>
                 <Table.Th visibleFrom="sm">Basic Amount (₹)</Table.Th>
                 <Table.Th visibleFrom="sm">GST Amount (₹)</Table.Th>
                 <Table.Th visibleFrom="sm">Total Amount (₹)</Table.Th>
@@ -671,7 +671,7 @@ export default function Admin_invoice() {
                         {invoice.invoiceNumber || "-"}
                       </Link>
                     </Table.Td>
-                    <Table.Td>{formatDateToLong(invoice.invoiceDate)}</Table.Td>
+                    <Table.Td visibleFrom="sm">{formatDateToLong(invoice.invoiceDate)}</Table.Td>
                     <Table.Td visibleFrom="sm">₹{formatMoney(basicAmount)}</Table.Td>
                     <Table.Td visibleFrom="sm">₹{formatMoney(gstAmount)}</Table.Td>
                     <Table.Td visibleFrom="sm">₹{formatMoney(totalAmount)}</Table.Td>
