@@ -38,6 +38,8 @@ type Stat = {
   color: string;
 };
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 const defaultData: Stat[] = [
   { title: "Paid", value: 0, diff: 0, icon: IconFileInvoice, color: "teal" },
   { title: "Cancelled", value: 0, diff: 0, icon: IconX, color: "red" },
@@ -74,7 +76,7 @@ export default function InvoiceStatusStats() {
     const fetchStats = async () => {
       try {
         const token = Cookies.get("token");
-        const res = await axios.get("/api/v1/invoices", {
+        const res = await axios.get(`${BASE_URL}/api/v1/invoices`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 

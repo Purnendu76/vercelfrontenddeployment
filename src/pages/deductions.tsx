@@ -14,6 +14,8 @@ import Cookies from "js-cookie";
 import { IconSearch, IconArrowLeft } from "@tabler/icons-react";
 import type { Invoice } from "../interface/Invoice";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
@@ -86,7 +88,7 @@ export default function DeductionsPage() {
       setLoading(true);
       try {
         const token = Cookies.get("token");
-        const res = await axios.get("/api/v1/invoices", {
+        const res = await axios.get(`${BASE_URL}/api/v1/invoices`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         setInvoices(Array.isArray(res.data) ? res.data : []);

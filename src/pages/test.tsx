@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 
@@ -15,14 +15,15 @@ const Test = () => {
 
         // either relative path (if frontend proxies /api to your backend) or full URL:
         // const url = "/api/v1/user-invoices/project";
-        const url = "/api/v1/user-invoices/project";
+        const url = `${import.meta.env.VITE_BASE_URL}/api/v1/user-invoices/project`;
 
         const token = Cookies.get("token"); // make sure token exists
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
         const res = await axios.get(url, { headers });
         setData(res.data);
-      } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
         // keep useful error info
         setError(err.response?.data ?? err.message);
       } finally {

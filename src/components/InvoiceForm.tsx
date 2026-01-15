@@ -23,6 +23,8 @@ import type { Invoice } from "@/interface/Invoice";
 import Cookies from "js-cookie";
 import { IconUpload } from "@tabler/icons-react";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 // Project to mode mapping
 const projectModeMap: Record<string, string> = {
   "NFS": "Back To Back",
@@ -148,7 +150,7 @@ export default function InvoiceForm({
           return;
         }
         try {
-          const res = await axios.get("/api/v1/auth/me", {
+          const res = await axios.get(`${BASE_URL}/api/v1/auth/me`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setProject(res.data.projectRole || null);
@@ -297,7 +299,7 @@ export default function InvoiceForm({
     try {
       setLoading(true);
       const baseEndpoint =
-        userRole === "Admin" ? "/api/v1/invoices" : "/api/v1/user-invoices";
+        userRole === "Admin" ? `${BASE_URL}/api/v1/invoices` : `${BASE_URL}/api/v1/user-invoices`;
       const authToken =
         token ||
         document.cookie

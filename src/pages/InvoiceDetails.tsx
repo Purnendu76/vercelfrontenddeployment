@@ -31,6 +31,8 @@ import autoTable from "jspdf-autotable";
 import { getUserRole } from "../lib/utils/getUserRole";
 import type { Invoice } from "../interface/Invoice";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 export default function InvoiceDetails() {
   const { invoiceNumber } = useParams<{ invoiceNumber: string }>();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
@@ -42,9 +44,9 @@ export default function InvoiceDetails() {
     try {
       const token = Cookies.get("token");
       const role = getUserRole();
-      let url = "/api/v1/invoices";
+      let url = `${BASE_URL}/api/v1/invoices`;
       if (role === "user") {
-        url = "/api/v1/user-invoices/project";
+        url = `${BASE_URL}/api/v1/user-invoices/project`;
       }
       const res = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
@@ -580,7 +582,7 @@ export default function InvoiceDetails() {
                     <Text fw={500} size="sm">Invoice Copy</Text>
                     {invoice.invoice_copy_path ? (
                       <a
-                        href={`/api/v1/files/${encodeURIComponent(invoice.invoice_copy_path.split(/[/\\]/).pop() || '')}`}
+                        href={`${BASE_URL}/api/v1/files/${encodeURIComponent(invoice.invoice_copy_path.split(/[/\\]/).pop() || '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{
@@ -604,7 +606,7 @@ export default function InvoiceDetails() {
                     <Text fw={500} size="sm">Proof of Submission</Text>
                     {invoice.proof_of_submission_path ? (
                       <a
-                        href={`/api/v1/files/${encodeURIComponent(invoice.proof_of_submission_path.split(/[/\\]/).pop() || '')}`}
+                        href={`${BASE_URL}/api/v1/files/${encodeURIComponent(invoice.proof_of_submission_path.split(/[/\\]/).pop() || '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{
@@ -628,7 +630,7 @@ export default function InvoiceDetails() {
                     <Text fw={500} size="sm">Supporting Documents</Text>
                     {invoice.supporting_docs_path ? (
                       <a
-                        href={`/api/v1/files/${encodeURIComponent(invoice.supporting_docs_path.split(/[/\\]/).pop() || '')}`}
+                        href={`${BASE_URL}/api/v1/files/${encodeURIComponent(invoice.supporting_docs_path.split(/[/\\]/).pop() || '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{

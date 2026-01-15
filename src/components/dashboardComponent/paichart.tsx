@@ -8,6 +8,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 const projects = ["NFS", "GAIL", "BGCL", "STP", "BHARAT NET", "NFS AMC"];
 
 const projectColors = [
@@ -37,7 +39,7 @@ export default function InvoiceDonutChart() {
     const fetchInvoices = async () => {
       try {
         const token = Cookies.get("token");
-        const res = await axios.get("/api/v1/invoices", {
+        const res = await axios.get(`${BASE_URL}/api/v1/invoices`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
 

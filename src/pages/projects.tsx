@@ -8,6 +8,8 @@
     "NFS AMC": "Back To Back",
   };
 import { useEffect, useState, useMemo } from "react";
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 import {
   Table,
   Stack,
@@ -56,7 +58,7 @@ export function AddProject() {
   const fetchInvoices = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/api/v1/invoices", {
+      const res = await axios.get(`${BASE_URL}/api/v1/invoices`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const invoices: Invoice[] = Array.isArray(res.data) ? res.data : [];

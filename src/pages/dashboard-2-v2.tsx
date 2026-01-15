@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 // Overdue Bar Chart Component and types (move above Dashboard2)
-import { Tooltip } from '@mantine/core';
+
 import { Link } from 'react-router-dom';
 import { IconChartBar } from '@tabler/icons-react';
 type OverdueBarChartData = { name: string; invoiceDate: number; submissionDate: number };
@@ -10,7 +10,7 @@ function OverdueBarChart({ data, timeframe = '6months' }: OverdueBarChartProps &
   if (!data || !data.length) return (<Text c="dimmed" size="sm" ta="center" py="xl">No data available</Text>);
   // Dynamic Y-axis scale: round up to nearest 1, 2, 5, 10, 20, 50, 100, etc.
   const maxRaw = Math.max(...data.map((d: OverdueBarChartData) => Math.max(d.invoiceDate, d.submissionDate))) || 1;
-  function getNiceMax(val) {
+  function getNiceMax(val: number) {
     if (val <= 5) return 5;
     const pow = Math.pow(10, Math.floor(Math.log10(val)));
     const n = Math.ceil(val / pow);
@@ -88,13 +88,16 @@ function OverdueBarChart({ data, timeframe = '6months' }: OverdueBarChartProps &
                       height={Math.max(hInv, 2)}
                       fill="#228be6"
                       rx={4}
-                      style={{ cursor: 'pointer', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
+                      style={{ 
+                        cursor: 'pointer', 
+                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))',
+                        transformOrigin: `0 ${hInv}px`
+                      }}
                       opacity={0.9}
                       initial={{ scaleY: 0 }}
                       animate={{ scaleY: 1 }}
                       transition={{ duration: 0.6, delay: i * 0.08 }}
                       transform={`translate(0,${height - hInv})`}
-                      transformOrigin={`0 ${hInv}`}
                     />
                   </Link>
                 </Tooltip>
@@ -111,13 +114,16 @@ function OverdueBarChart({ data, timeframe = '6months' }: OverdueBarChartProps &
                       height={Math.max(hSub, 2)}
                       fill="#a3cff5"
                       rx={4}
-                      style={{ cursor: 'pointer', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
+                      style={{ 
+                        cursor: 'pointer', 
+                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))',
+                        transformOrigin: `0 ${hSub}px`
+                      }}
                       opacity={0.9}
                       initial={{ scaleY: 0 }}
                       animate={{ scaleY: 1 }}
                       transition={{ duration: 0.6, delay: i * 0.08 + 0.04 }}
                       transform={`translate(0,${height - hSub})`}
-                      transformOrigin={`0 ${hSub}`}
                     />
                   </Link>
                 </Tooltip>
@@ -163,8 +169,7 @@ import {
   IconCheck, 
   IconClock, 
   IconFilter,
-  IconBell,
-  IconSearch
+  IconBell
 } from '@tabler/icons-react';
 // Deduction labels for summary table
 const deductionLabels = [
@@ -185,19 +190,15 @@ import {
   Select,
   Table,
   Badge,
-  Loader,
-  SimpleGrid,
-  ScrollArea,
   Box,
   ThemeIcon,
-  rem,
   Paper,
-  RingProgress,
-  Center,
   Avatar,
   ActionIcon,
   Divider,
   Button,
+  LoadingOverlay,
+  Tooltip,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 
@@ -209,13 +210,7 @@ const statusList = [
   'Credit Note Issued',
   'Cancelled',
 ];
-const statusColors = {
-  'Paid': 'teal',
-  'Cancelled': 'orange',
-  'Under process': 'blue',
-  'Credit Note Issued': 'gray',
-};
-const statusHexColors = {
+const statusHexColors: Record<string, string> = {
   'Paid': '#20c997', // teal.5
   'Cancelled': '#fa5252', // orange.6
   'Under process': '#228be6', // blue.6
@@ -226,10 +221,12 @@ const projectOptions = ['All Projects', 'NFS', 'GAIL', 'BGCL', 'STP', 'BHARAT NE
 const stateOptions = ['All States', 'West Bengal', 'Delhi', 'Bihar', 'MP', 'Kerala', 'Sikkim', 'Jharkhand', 'Andaman'];
 const billCategoryOptions = ['', 'Service', 'Supply', 'ROW', 'AMC', 'Restoration Service', 'Restoration Supply', 'Restoration Row', 'Spares', 'Training'];
 
+const statusOptionsList = [{ value: 'all', label: 'Status' }, ...statusList.map(s => ({ value: s, label: s }))];
+
 // Generate financial year options dynamically
 function getFinancialYearOptions(currentYear = 2025, count = 5) {
   const options = [
-    { value: 'all', label: 'Select Financial Year', range: null },
+    { value: 'all', label: 'Select Financial Year', range: null as [Date, Date] | null },
   ];
   for (let i = 0; i < count; i++) {
     const startYear = currentYear - i;
@@ -237,7 +234,7 @@ function getFinancialYearOptions(currentYear = 2025, count = 5) {
     // Format: FY 2025-26
     const label = `FY ${startYear}-${String(endYear).slice(-2)}`;
     // Range: [startDate, endDate]
-    const range = [
+    const range: [Date, Date] = [
       new Date(`${startYear}-04-01T00:00:00.000Z`),
       new Date(`${endYear}-03-31T23:59:59.999Z`)
     ];
@@ -250,7 +247,14 @@ const financialYearOptions = getFinancialYearOptions(2025, 5);
 // --- Sub-Components ---
 
 // 1. Modern KPI Card
-function StatCard({ title, value, icon, color }) {
+interface StatCardProps {
+  title: string;
+  value: number;
+  icon: React.ReactNode;
+  color: string;
+}
+
+function StatCard({ title, value, icon, color }: StatCardProps) {
   return (
     <Paper withBorder p="md" radius="md" shadow="xs">
       <Group justify="space-between">
@@ -271,7 +275,12 @@ function StatCard({ title, value, icon, color }) {
 }
 
 // 2. Styled SVG Bar Chart
-function BarChart({ data }) {
+interface BarChartData {
+  name: string;
+  raised: number;
+  approved: number;
+}
+function BarChart({ data }: { data: BarChartData[] }) {
   if (!data.length) return <Text c="dimmed" size="sm" ta="center" py="xl">No data available</Text>;
   const max = Math.max(...data.map(d => d.raised)) || 100;
   
@@ -349,7 +358,13 @@ function BarChart({ data }) {
 import { DonutChart } from '@mantine/charts';
 import { motion } from 'framer-motion';
 
-function PieChart({ data, projectFilter }) {
+// 3. Styled Pie Chart
+interface PieChartData {
+  label: string;
+  value: number;
+  color: string;
+}
+function PieChart({ data, projectFilter }: { data: PieChartData[], projectFilter: string }) {
   // Prepare data for DonutChart
   const chartData = (data || []).map((d) => ({
     name: d.label,
@@ -369,7 +384,7 @@ function PieChart({ data, projectFilter }) {
 
   // Use projectFilter prop for the project query param
   const pieProps = {
-    onClick: (segment) => {
+    onClick: (segment: any) => {
       if (!segment || !segment.name) return;
       let statusParam = '';
       if (segment.name.toLowerCase() === 'under process') statusParam = 'Under%20Process';
@@ -431,7 +446,6 @@ function PieChart({ data, projectFilter }) {
 
 // --- Main Dashboard Component ---
 
-
 // Overdue timeframe options
 const overdueModes = [
   { label: '1 week', value: '1w', ms: 7 * 24 * 60 * 60 * 1000 },
@@ -443,22 +457,26 @@ const overdueModes = [
   { label: '1 year', value: '1y', ms: 365 * 24 * 60 * 60 * 1000 },
 ];
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const Dashboard2 = () => {
   const [invoices, setInvoices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Filters
   const [project, setProject] = useState('All Projects');
   const [state, setState] = useState('All States');
-  const [billCategory, setBillCategory] = useState('');
-
-  const [dateRange, setDateRange] = useState([null, null]); // [start, end]
   const [financialYear, setFinancialYear] = useState('all');
-  // Status filter: default is all selected
-  const statusOptionsList = [{ value: 'all', label: 'Status' }, ...statusList.map(s => ({ value: s, label: s }))];
   const [statusFilter, setStatusFilter] = useState<string[]>(['all']);
+  // const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
+      new Date('2024-04-01'), 
+      new Date('2025-03-31')
+  ]);
+  const [billCategory, setBillCategory] = useState<string>(''); // mybillCategory filter
 
-  // Overdue mode state (default 6 months)
-  const [overdueMode, setOverdueMode] = useState<string>('6m');
+  // Overdue Mode
+  const [overdueMode, setOverdueMode] = useState('2w');
 
 
   // --- Logic unchanged ---
@@ -470,11 +488,11 @@ const Dashboard2 = () => {
       setLoading(true);
       try {
         const token = Cookies.get('token');
-        const res = await axios.get('/api/v1/invoices', {
+        const res = await axios.get(`${BASE_URL}/api/v1/invoices`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         setInvoices(Array.isArray(res.data) ? res.data : []);
-      } catch (err) {
+      } catch {
         setInvoices([]);
       } finally {
         setLoading(false);
@@ -583,17 +601,21 @@ const Dashboard2 = () => {
   }, [filteredInvoices]);
 
   const invoiceStatus = useMemo(() => {
-    const statusMap = {};
+    const statusMap: Record<string, number> = {};
     statusList.forEach(s => { statusMap[s] = 0; });
     filteredInvoices.forEach(inv => {
       const s = String(inv.status || '').trim();
-      if (statusMap.hasOwnProperty(s)) statusMap[s]++;
+      if (Object.prototype.hasOwnProperty.call(statusMap, s)) statusMap[s]++;
     });
-    return Object.entries(statusMap).map(([label, value]) => ({ label, value, color: statusHexColors[label] }));
+    return Object.entries(statusMap).map(([label, value]) => ({ 
+      label, 
+      value: Number(value), 
+      color: statusHexColors[label] || '#cccccc' 
+    }));
   }, [filteredInvoices]);
 
   const projectRevenue = useMemo(() => {
-    const map = {};
+    const map: Record<string, { raised: number; approved: number }> = {};
     filteredInvoices.forEach(inv => {
       const proj = inv.project || 'Unknown';
       if (!map[proj]) map[proj] = { raised: 0, approved: 0 };
@@ -617,6 +639,7 @@ const Dashboard2 = () => {
   // --- Render ---
   return (
     <Box style={{ minHeight: '100vh' , width:'100%'}} >
+      <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
       <Container size="100%" py="md"  >
         {/* Header Section */}
         <Paper shadow="xs" p="md" radius="md" mb="xl" withBorder>
@@ -646,7 +669,7 @@ const Dashboard2 = () => {
                 size="sm"
                 radius="md"
                 clearable={project !== 'All Projects'}
-                withinPortal
+                checkIconPosition="right"
                 searchable
               />
               <Select
@@ -658,7 +681,7 @@ const Dashboard2 = () => {
                 size="sm"
                 radius="md"
                 clearable={state !== 'All States'}
-                withinPortal
+                checkIconPosition="right"
                 searchable
               />
               <Select
@@ -670,7 +693,7 @@ const Dashboard2 = () => {
                 size="sm"
                 radius="md"
                 clearable={financialYear !== 'all'}
-                withinPortal
+                checkIconPosition="right"
               />
               <Select
                 placeholder="Status"
@@ -690,12 +713,12 @@ const Dashboard2 = () => {
                 size="sm"
                 radius="md"
                 clearable={statusFilter[0] !== 'all'}
-                withinPortal
+                checkIconPosition="right"
               />
               <DatePickerInput
                 type="range"
                 value={dateRange}
-                onChange={setDateRange}
+                onChange={(val) => setDateRange(val as [Date | null, Date | null])}
                 placeholder="Select date range"
                 w={180}
                 size="sm"
@@ -706,7 +729,6 @@ const Dashboard2 = () => {
                 maxDate={new Date(2100, 11, 31)}
                 minDate={new Date(2000, 0, 1)}
                 label={null}
-                withinPortal
               />
               <Divider orientation="vertical" mx={4} />
               <ActionIcon variant="light" size="lg" radius="md"><IconBell size={18} /></ActionIcon>
@@ -785,7 +807,6 @@ const Dashboard2 = () => {
                 data={billCategoryOptions.map(opt => ({ value: opt || '', label: opt || 'All' }))}
                 value={billCategory === '' ? '' : billCategory}
                 onChange={(v) => setBillCategory(v ?? '')}
-                renderValue={(selected) => selected === '' ? 'All' : selected}
                 placeholder="Bill Category"
                 mb={8}
                 w="100%"
@@ -819,9 +840,8 @@ const Dashboard2 = () => {
                     size="xs"
                     w={140}
                     value={overdueMode}
-                    onChange={setOverdueMode}
+                    onChange={(v) => setOverdueMode(v || '2w')}
                     data={overdueModes.map(m => ({ value: m.value, label: m.label }))}
-                    withinPortal
                   />
                 </Group>
                 <Box mt="auto" mb="auto">

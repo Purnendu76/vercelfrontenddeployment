@@ -12,29 +12,17 @@ import {
   LoadingOverlay,
   Stack,
   TextInput,
-  ActionIcon,
+  Box,
+  Select,
   Grid,
   Card,
-  Box,
-  ScrollArea,
-  Select,
 } from "@mantine/core";
-import { IconArrowLeft, IconSearch, IconEye } from "@tabler/icons-react";
+import { IconArrowLeft, IconSearch } from "@tabler/icons-react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { notifyError } from "../lib/utils/notify";
 
 import {
-  ResponsiveContainer,
-  BarChart as ReBarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  CartesianGrid,
-  AreaChart,
-  Area,
 } from "recharts";
 
 interface InvoiceData {
@@ -66,6 +54,8 @@ const formatMoney = (val: number | null | undefined): string => {
   if (isNaN(n) || n <= 0) return "0.00";
   return n.toFixed(2);
 };
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export default function SelectedStatus() {
   const [searchParams] = useSearchParams();
@@ -106,7 +96,7 @@ export default function SelectedStatus() {
     const fetchInvoices = async () => {
       try {
         const token = Cookies.get("token");
-        const res = await axios.get("/api/v1/invoices", {
+        const res = await axios.get(`${BASE_URL}/api/v1/invoices`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const allInvoices = Array.isArray(res.data) ? res.data : [];
@@ -170,44 +160,9 @@ export default function SelectedStatus() {
     }
   }, [filteredInvoices, statusFilterValue]);
 
-  // --- Chart Data: group by submissionDate ---
-  const chartData = useMemo(() => {
-    const map = new Map<string, { totalAmount: number; count: number }>();
-    filteredInvoices.forEach((inv) => {
-      if (!inv.submissionDate) return;
-      const key = new Date(inv.submissionDate).toISOString().slice(0, 10);
-      const prev = map.get(key) || { totalAmount: 0, count: 0 };
-      map.set(key, {
-        totalAmount: prev.totalAmount + (inv.totalAmount || 0),
-        count: prev.count + 1,
-      });
-    });
-    return Array.from(map.entries())
-      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-      .map(([dateKey, value]) => ({
-        dateKey,
-        label: new Date(dateKey).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }),
-        totalAmount: value.totalAmount,
-        count: value.count,
-      }));
-  }, [filteredInvoices]);
 
-  // --- Custom Tooltip ---
-  const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: any[]; label?: string; }) => {
-    if (!active || !payload || payload.length === 0) return null;
-    const item = payload[0].payload;
-    return (
-      <div style={{ background: "white", borderRadius: 8, padding: "8px 10px", boxShadow: "0 4px 14px rgba(0,0,0,0.08)", border: "1px solid #eee" }}>
-        <div style={{ fontSize: 12, marginBottom: 4, opacity: 0.7 }}>
-          {item?.dateKey ? new Date(item.dateKey).toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "numeric" }) : label}
-        </div>
-        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>
-          Total: ₹{formatMoney(item.totalAmount)}
-        </div>
-        <div style={{ fontSize: 12, opacity: 0.8 }}>Invoices: {item.count}</div>
-      </div>
-    );
-  };
+
+
 
   // --- Table: sorted by date descending ---
   const visibleInvoices = filteredInvoices;
@@ -305,7 +260,7 @@ export default function SelectedStatus() {
                     <Paper p="md" radius="md" withBorder bg="gray.0" style={{ minWidth: 0 }}>
                       <Stack gap={6}>
                         <Group justify="space-between" align="flex-start">
-                          <Box w={24} h={24} radius="md" bg="blue.1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <Box w={24} h={24} bg="blue.1" style={{ borderRadius: 'var(--mantine-radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <Text fw={700} size="xs" c="blue">{idx + 1}</Text>
                           </Box>
                           <Text fw={700} size="xs" c="blue">
@@ -416,7 +371,7 @@ export default function SelectedStatus() {
               </Table.Tbody>
             </Table>
           ) : (
-            <Text align="center" py="xl" c="dimmed">
+            <Text ta="center" py="xl" c="dimmed">
               No invoices found.
             </Text>
           )}

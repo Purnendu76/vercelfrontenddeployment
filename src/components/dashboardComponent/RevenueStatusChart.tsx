@@ -24,6 +24,8 @@ const defaultRevenueData = [
   { state: "Andaman", Paid: 0, Cancelled: 0, UnderProcess: 0, CreditNote: 0 },
 ];
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 export default function RevenueStatusChart() {
   const [revenueData, setRevenueData] = useState(defaultRevenueData);
 
@@ -31,7 +33,7 @@ export default function RevenueStatusChart() {
     const fetchInvoices = async () => {
       try {
         const token = Cookies.get("token");
-        const res = await axios.get("/api/v1/invoices", {
+        const res = await axios.get(`${BASE_URL}/api/v1/invoices`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const invoices = Array.isArray(res.data) ? res.data : [];

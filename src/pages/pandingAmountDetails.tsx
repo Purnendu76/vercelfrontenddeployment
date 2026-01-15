@@ -10,7 +10,6 @@ import {
   LoadingOverlay,
   Stack,
   TextInput,
-  ActionIcon,
   Select,
   ScrollArea,
 } from "@mantine/core";
@@ -19,7 +18,27 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { notifyError } from "../lib/utils/notify";
 
-function formatDateToLong(dateInput) {
+// Define Invoice interface loosely based on usage in this file
+interface Invoice {
+  id: string;
+  invoiceNumber?: string;
+  invoiceDate?: string | Date;
+  project?: string;
+  state?: string;
+  status?: string;
+  basicAmount?: number | string;
+  invoiceBasicAmount?: number | string;
+  gstAmount?: number | string;
+  invoiceGstAmount?: number | string;
+  totalAmount?: number | string;
+  totalDeduction?: number | string;
+  netPayable?: number | string;
+  amountPaidByClient?: number | string;
+  balance?: number | string;
+  [key: string]: any; // Allow other properties
+}
+
+function formatDateToLong(dateInput: string | Date | null | undefined) {
   if (!dateInput) return "-";
   const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
   if (isNaN(date.getTime())) return "-";
@@ -29,11 +48,13 @@ function formatDateToLong(dateInput) {
   return `${day} ${month} ${year}`;
 }
 
-const formatMoney = (val) => {
+const formatMoney = (val: number | string | undefined | null) => {
   const n = Number(val ?? 0);
   if (isNaN(n)) return "0.00";
   return n.toFixed(2);
 };
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export default function PandingAmountDetails() {
   const [searchParams] = useSearchParams();
@@ -44,7 +65,7 @@ export default function PandingAmountDetails() {
   const stateParam = searchParams.get("state") || "";
   const statusParam = searchParams.get("status") || "";
 
-  const [invoices, setInvoices] = useState([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [projectFilter, setProjectFilter] = useState(projectParam);
@@ -114,7 +135,7 @@ export default function PandingAmountDetails() {
     const fetchInvoices = async () => {
       try {
         const token = Cookies.get("token");
-        const res = await axios.get("/api/v1/invoices", {
+        const res = await axios.get(`${BASE_URL}/api/v1/invoices`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         setInvoices(Array.isArray(res.data) ? res.data : []);
@@ -240,7 +261,7 @@ export default function PandingAmountDetails() {
                 const basicAmount = Number(invoice.basicAmount ?? invoice.invoiceBasicAmount ?? 0);
                 const gstAmount = Number(invoice.gstAmount ?? invoice.invoiceGstAmount ?? 0);
                 const totalAmount = Number(invoice.totalAmount ?? 0);
-                const totalDeduction = Number(invoice.totalDeduction ?? 0);
+                // const totalDeduction = Number(invoice.totalDeduction ?? 0);
                 const netPayable = Number(invoice.netPayable ?? 0);
                 const amountPaid = Number(invoice.amountPaidByClient ?? 0);
                 const balance = Number(invoice.balance ?? invoice.netPayable ?? 0) - Number(invoice.amountPaidByClient ?? 0);

@@ -9,6 +9,8 @@ import autoTable from "jspdf-autotable";
 import { getUserRole } from "../lib/utils/getUserRole";
 import type { Invoice } from "@/interface/Invoice";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 // Helper functions (copied from InvoiceDetails for consistency)
 const formatDateToLong = (dateInput: Date | string | null | undefined): string => {
   if (!dateInput) return "-";
@@ -50,9 +52,9 @@ export default function InvoicePdfPreview() {
     try {
       const token = Cookies.get("token");
       const role = getUserRole();
-      let url = "/api/v1/invoices";
+      let url = `${BASE_URL}/api/v1/invoices`;
       if (role === "user") {
-        url = "/api/v1/user-invoices/project";
+        url = `${BASE_URL}/api/v1/user-invoices/project`;
       }
       const res = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
@@ -171,7 +173,7 @@ export default function InvoicePdfPreview() {
     finalY += 6;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const totalDeduction = num((invoice as any).totalDeduction || invoice.totalDeductions);
+    const totalDeduction = num((invoice as any).totalDeduction || invoice.totalDeduction);
      const netPayable = num(invoice.netPayable as number | string);
      const balance = num(invoice.balance);
 

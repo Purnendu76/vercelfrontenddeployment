@@ -25,6 +25,7 @@ import { Link } from "react-router-dom";
 
 /* ---------------- CONSTANTS ---------------- */
 const PAGE_SIZE = 30;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 /* ---------------- COMPONENT ---------------- */
 export default function User_invoice() {
@@ -53,7 +54,7 @@ export default function User_invoice() {
         return;
       }
 
-      const res = await axios.get("/api/v1/user-invoices/project", {
+      const res = await axios.get(`${BASE_URL}/api/v1/user-invoices/project`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -64,7 +65,7 @@ export default function User_invoice() {
         paymentDate: inv.paymentDate ? new Date(inv.paymentDate) : null,
       }));
 
-      normalized.sort((a, b) => {
+      normalized.sort((a: Invoice, b: Invoice) => {
         const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
         const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
         return bDate - aDate;
@@ -98,7 +99,7 @@ export default function User_invoice() {
             .find((row) => row.startsWith("token="))
             ?.split("=")[1];
 
-          await axios.delete(`/api/v1/user-invoices/${id}`, {
+          await axios.delete(`${BASE_URL}/api/v1/user-invoices/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
 
@@ -197,8 +198,8 @@ export default function User_invoice() {
             </Table.Thead>
             <Table.Tbody>
               {paginatedInvoices.map((invoice) => {
-                const basicAmount = Number(invoice.basicAmount ?? 0);
-                const gstAmount = Number(invoice.gstAmount ?? 0);
+                const basicAmount = Number(invoice.invoiceBasicAmount ?? 0);
+                const gstAmount = Number(invoice.invoiceGstAmount ?? 0);
                 const totalAmount = Number(invoice.totalAmount ?? 0);
                 const totalDeduction = Number(invoice.totalDeduction ?? 0);
                 const netPayable = Number(invoice.netPayable ?? 0);

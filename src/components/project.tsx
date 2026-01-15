@@ -38,6 +38,8 @@ const formatMoney = (val: number | null | undefined): string => {
   return n.toFixed(2);
 };
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 export  function Project() {
   const { projectName } = useParams<{ projectName: string }>();
   const [loading, setLoading] = useState(true);
@@ -50,7 +52,7 @@ export  function Project() {
     try {
       setLoading(true);
       const token = Cookies.get("token");
-      const res = await axios.get("/api/v1/invoices", {
+      const res = await axios.get(`${BASE_URL}/api/v1/invoices`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

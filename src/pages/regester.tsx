@@ -10,15 +10,15 @@ import {
   Image,
   Center,
   Stack,
-  Divider,
-  Group,
 } from "@mantine/core";
-import { IconBrandGoogle, IconBrandGithub } from "@tabler/icons-react";
+
 import { useNavigate } from "react-router-dom";
 import { notifySuccess, notifyError } from "../lib/utils/notify";
 import axios, { AxiosError } from "axios";
 import { useEffect } from "react";
 import { getUserRole } from "../lib/utils/getUserRole";
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export default function Register() {
   const navigate = useNavigate();
@@ -52,7 +52,7 @@ export default function Register() {
 
   const handleSubmit = async (values: typeof form.values) => {
     try {
-      const response = await axios.post("/api/v1/auth/register", {
+      const response = await axios.post(`${BASE_URL}/api/v1/auth/register`, {
         name: values.name,
         email: values.email,
         password: values.password,

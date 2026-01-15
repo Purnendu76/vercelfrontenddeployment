@@ -15,10 +15,7 @@ import {
   ActionIcon,
   Grid,
   Card,
-  Divider,
-  Center,
   Box,
-  SimpleGrid,
   ScrollArea,
   Select,
 } from "@mantine/core";
@@ -28,12 +25,10 @@ import Cookies from "js-cookie";
 import { notifyError } from "../lib/utils/notify";
 import {
   ResponsiveContainer,
-  BarChart as ReBarChart,
   Bar,
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
   CartesianGrid,
   AreaChart,
   Area,
@@ -61,7 +56,10 @@ function formatDateToLong(dateInput: Date | string | null | undefined): string {
   const month = date.toLocaleString("en-US", { month: "long" });
   const year = date.getFullYear();
   return `${day} ${month} ${year}`;
+  return `${day} ${month} ${year}`;
 }
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const formatMoney = (val: number | null | undefined): string => {
   const n = Number(val ?? 0);
@@ -135,7 +133,7 @@ export default function SelectGst() {
     const fetchInvoices = async () => {
       try {
         const token = Cookies.get("token");
-        const res = await axios.get("/api/v1/invoices", {
+        const res = await axios.get(`${BASE_URL}/api/v1/invoices`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const allInvoices = Array.isArray(res.data) ? res.data : [];
@@ -200,25 +198,6 @@ export default function SelectGst() {
     return { totalGst, invoiceCount };
   }, [filteredInvoices]);
 
-  // --- Chart: group by GST amount ---
-  const chartData = useMemo(() => {
-    const map = new Map<number, { totalGst: number; count: number }>();
-    filteredInvoices.forEach((inv) => {
-      const key = Number(inv.invoiceGstAmount) || 0;
-      const prev = map.get(key) || { totalGst: 0, count: 0 };
-      map.set(key, {
-        totalGst: prev.totalGst + (inv.invoiceGstAmount || 0),
-        count: prev.count + 1,
-      });
-    });
-    return Array.from(map.entries())
-      .sort(([a], [b]) => a - b)
-      .map(([gst, value]) => ({
-        gst,
-        totalGst: value.totalGst,
-        count: value.count,
-      }));
-  }, [filteredInvoices]);
 
   // --- Top 5 Invoices by GST Amount ---
   const top5Invoices = useMemo(() => {
@@ -255,22 +234,7 @@ export default function SelectGst() {
     }));
   }, [top5Invoices]);
 
-  // --- Custom Tooltip ---
-  const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: any[]; label?: string; }) => {
-    if (!active || !payload || payload.length === 0) return null;
-    const item = payload[0].payload;
-    return (
-      <div style={{ background: "white", borderRadius: 8, padding: "8px 10px", boxShadow: "0 4px 14px rgba(0,0,0,0.08)", border: "1px solid #eee" }}>
-        <div style={{ fontSize: 12, marginBottom: 4, opacity: 0.7 }}>
-          GST: ₹{item.gst}
-        </div>
-        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>
-          Total GST: ₹{formatMoney(item.totalGst)}
-        </div>
-        <div style={{ fontSize: 12, opacity: 0.8 }}>Invoices: {item.count}</div>
-      </div>
-    );
-  };
+
 
   // --- Table: sorted by GST Amount descending ---
   const visibleInvoices = filteredInvoices;
@@ -345,7 +309,7 @@ export default function SelectGst() {
                   <Paper p="md" radius="md" withBorder bg="gray.0" style={{ minWidth: 0 }}>
                     <Stack gap={6}>
                       <Group justify="space-between" align="flex-start">
-                        <Box w={24} h={24} radius="md" bg="blue.1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Box w={24} h={24} bg="blue.1" style={{ borderRadius: 'var(--mantine-radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           <Text fw={700} size="xs" c="blue">{idx + 1}</Text>
                         </Box>
                         <Text fw={700} size="xs" c="blue">₹{formatMoney(inv.invoiceGstAmount)}</Text>
@@ -499,7 +463,7 @@ export default function SelectGst() {
               </Table>
             </ScrollArea>
           ) : (
-            <Text align="center" py="xl" c="dimmed">
+            <Text ta="center" py="xl" c="dimmed">
               No invoices found.
             </Text>
           )}

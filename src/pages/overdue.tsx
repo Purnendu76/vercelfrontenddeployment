@@ -10,14 +10,32 @@ import {
   LoadingOverlay,
   Stack,
   TextInput,
-  ActionIcon,
   Select,
-  ScrollArea,
 } from "@mantine/core";
 import { IconArrowLeft, IconSearch } from "@tabler/icons-react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { notifyError } from "../lib/utils/notify";
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
+// Define InvoiceData interface based on usage
+interface InvoiceData {
+  id: string;
+  invoiceNumber?: string;
+  invoiceDate?: string | Date;
+  submissionDate?: string | Date;
+  project?: string | string[];
+  status?: string;
+  basicAmount?: number | string;
+  gstAmount?: number | string;
+  totalAmount?: number | string;
+  totalDeduction?: number | string;
+  netPayable?: number | string;
+  amountPaidByClient?: number | string;
+  balance?: number | string;
+  [key: string]: any;
+}
 
 function formatDateToLong(dateInput: Date | string | null | undefined): string {
   if (!dateInput) return "-";
@@ -48,7 +66,10 @@ const agingPeriods = [
 const timeframeMap: Record<string, number> = agingPeriods.reduce((acc, cur) => {
   acc[cur.value] = cur.ms;
   return acc;
-}, {
+}, {} as Record<string, number>);
+
+// Add default values to the map if they are not in agingPeriods but used in defaults
+Object.assign(timeframeMap, {
   "2w": 14 * 24 * 60 * 60 * 1000,
   "2m": 60 * 24 * 60 * 60 * 1000,
   "1y": 365 * 24 * 60 * 60 * 1000,
@@ -110,7 +131,7 @@ export default function Overdue() {
     const fetchInvoices = async () => {
       try {
         const token = Cookies.get("token");
-        const res = await axios.get("/api/v1/invoices", {
+        const res = await axios.get(`${BASE_URL}/api/v1/invoices`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setInvoices(Array.isArray(res.data) ? res.data : []);
@@ -124,46 +145,7 @@ export default function Overdue() {
   }, []);
 
 
-  // OverdueBarChart-like logic: show all invoices for the selected project, grouped by aging period and date type
-  // This will allow the user to see the breakdown for each period and date type
-  const overdueAgingData = useMemo(() => {
-    // Only 'Under process' status
-    const filtered = invoices.filter(inv => inv.status === 'Under process');
-    // Project filter
-    const projectFiltered = projectFilter && projectFilter !== 'all'
-      ? filtered.filter(inv => Array.isArray(inv.project) ? inv.project.includes(projectFilter) : inv.project === projectFilter)
-      : filtered;
-    // For each aging period, count for both invoiceDate and submissionDate
-    const now = Date.now();
-    const agingCounts: Record<string, { invoiceDate: number; submissionDate: number }> = {};
-    agingPeriods.forEach(period => {
-      agingCounts[period.value] = { invoiceDate: 0, submissionDate: 0 };
-    });
-    projectFiltered.forEach(inv => {
-      // Invoice Date
-      const invDate = inv.invoiceDate ? new Date(inv.invoiceDate).getTime() : null;
-      if (invDate && !isNaN(invDate)) {
-        const ageInMs = now - invDate;
-        agingPeriods.forEach(period => {
-          if (ageInMs >= period.ms) agingCounts[period.value].invoiceDate++;
-        });
-      }
-      // Submission Date
-      const subDate = inv.submissionDate ? new Date(inv.submissionDate).getTime() : null;
-      if (subDate && !isNaN(subDate)) {
-        const ageInMs = now - subDate;
-        agingPeriods.forEach(period => {
-          if (ageInMs >= period.ms) agingCounts[period.value].submissionDate++;
-        });
-      }
-    });
-    return agingPeriods.map(period => ({
-      label: period.label,
-      value: period.value,
-      invoiceDate: agingCounts[period.value].invoiceDate,
-      submissionDate: agingCounts[period.value].submissionDate,
-    }));
-  }, [invoices, projectFilter]);
+
 
   // Strictly filter invoices based on project, date, and timeframe (as per user requirements)
   const filteredInvoices = useMemo(() => {

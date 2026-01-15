@@ -10,10 +10,10 @@ import {
   Image,
   Center,
   Stack,
-  Divider,
-  Group,
+  // Divider,
+  // Group,
 } from "@mantine/core";
-import { IconBrandGoogle, IconBrandGithub } from "@tabler/icons-react";
+// import { IconBrandGoogle, IconBrandGithub } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import axios, { AxiosError } from "axios";
 import { notifySuccess, notifyError } from "../lib/utils/notify";
@@ -25,7 +25,7 @@ interface LoginFormValues {
   email: string;
   password: string;
 }
-
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 export default function Auth() {
   const navigate = useNavigate();
   const user = getUserRole();
@@ -56,7 +56,7 @@ export default function Auth() {
   const handleSubmit = async (values: LoginFormValues) => {
     try {
       // ✅ Call backend login
-      const res = await axios.post("/api/v1/auth/login", {
+      const res = await axios.post(`${BASE_URL}/api/v1/auth/login`, {
         email: values.email,
         password: values.password,
       });

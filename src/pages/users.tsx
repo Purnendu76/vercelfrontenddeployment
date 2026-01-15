@@ -28,6 +28,8 @@ type User = {
   role?: string;
 };
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 const projectRoles = ["NFS", "GAIL", "BGCL", "STP", "BHARAT NET", "NFS AMC"];
 
 export default function Users() {
@@ -43,7 +45,7 @@ export default function Users() {
   const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/api/v1/auth/register", {
+      const res = await axios.get(`${BASE_URL}/api/v1/auth/register`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -78,7 +80,7 @@ export default function Users() {
       confirmProps: { color: "red" },
       onConfirm: async () => {
         try {
-          await axios.delete(`/api/v1/auth/register/${id}`, {
+          await axios.delete(`${BASE_URL}/api/v1/auth/register/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setUsers((prev) => prev.filter((u) => u.id !== id));
@@ -100,7 +102,7 @@ export default function Users() {
       }
 
       await axios.put(
-        `/api/v1/auth/register/${userId}`,
+        `${BASE_URL}/api/v1/auth/register/${userId}`,
         { project_role: projectRole },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -129,7 +131,7 @@ export default function Users() {
 
   const handleAddUser = async (values: typeof addUserForm.values) => {
     try {
-    await axios.post("/api/v1/auth/register", {
+    await axios.post(`${BASE_URL}/api/v1/auth/register`, {
   name: values.name,
   email: values.email,
   password: values.password,

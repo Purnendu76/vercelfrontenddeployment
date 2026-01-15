@@ -30,6 +30,8 @@ import Cookies from "js-cookie";
 import { Link } from "react-router-dom";
 import * as XLSX from "xlsx";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 // Utility function to format date as '12 April 2025'
 function formatDateToLong(dateInput: Date | string | null | undefined): string {
   if (!dateInput) return "-";
@@ -140,7 +142,7 @@ export default function Admin_invoice() {
     try {
       setLoading(true);
       const token = Cookies.get("token");
-      const res = await axios.get("/api/v1/invoices", {
+      const res = await axios.get(`${BASE_URL}/api/v1/invoices`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -182,7 +184,7 @@ export default function Admin_invoice() {
       onConfirm: async () => {
         try {
           const token = Cookies.get("token");
-          await axios.delete(`/api/v1/invoices/${id}`, {
+          await axios.delete(`${BASE_URL}/api/v1/invoices/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setInvoices((prev) => prev.filter((inv) => inv.id !== id));
@@ -209,7 +211,7 @@ export default function Admin_invoice() {
         try {
           const token = Cookies.get("token");
           await Promise.all(selectedRows.map(id =>
-            axios.delete(`/api/v1/invoices/${id}`, {
+            axios.delete(`${BASE_URL}/api/v1/invoices/${id}`, {
               headers: { Authorization: `Bearer ${token}` },
             })
           ));
@@ -476,7 +478,7 @@ export default function Admin_invoice() {
             if (v !== null && v !== undefined) form.append(k, String(v));
           });
 
-          await axios.post("/api/v1/invoices", form, {
+          await axios.post(`${BASE_URL}/api/v1/invoices`, form, {
             headers: { Authorization: `Bearer ${token}` },
           });
 

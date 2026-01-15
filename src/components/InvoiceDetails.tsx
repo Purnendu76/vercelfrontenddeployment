@@ -5,6 +5,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import type { Invoice } from "@/interface/Invoice";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 export default function InvoiceDetails() {
   const { invoiceNumber } = useParams<{ invoiceNumber: string }>();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
@@ -16,8 +18,8 @@ export default function InvoiceDetails() {
       const isUserRoute = location.pathname.startsWith("/user-invoice");
 
       const endpoint = isUserRoute
-        ? `/api/v1/user-invoices/${invoiceNumber}`
-        : `/api/v1/invoices/${invoiceNumber}`;
+        ? `${BASE_URL}/api/v1/user-invoices/${invoiceNumber}`
+        : `${BASE_URL}/api/v1/invoices/${invoiceNumber}`;
 
       const res = await axios.get(endpoint, {
         headers: { Authorization: `Bearer ${token}` },

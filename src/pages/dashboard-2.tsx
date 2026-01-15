@@ -40,6 +40,8 @@ import { motion } from 'framer-motion';
 
 // --- Types & Helper Components ---
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 type OverdueBarChartData = { name: string; invoiceDate: number; submissionDate: number };
 type OverdueBarChartProps = { data: OverdueBarChartData[]; project?: string };
 
@@ -384,7 +386,7 @@ const Dashboard2 = () => {
       // setLoading(true);
       try {
         const token = Cookies.get('token');
-        const res = await axios.get('/api/v1/invoices', {
+        const res = await axios.get(`${BASE_URL}/api/v1/invoices`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         setInvoices(Array.isArray(res.data) ? res.data : []);
