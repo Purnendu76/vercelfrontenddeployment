@@ -607,10 +607,10 @@ export default function Admin_invoice() {
       ) : visibleInvoices.length > 0 ? (
         <>
           <ScrollArea>
-            <Table striped highlightOnHover withTableBorder style={{ minWidth: 1200 }}>
+            <Table striped highlightOnHover withTableBorder horizontalSpacing={2} verticalSpacing={2} style={{ tableLayout: 'auto' }}>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>
+                <Table.Th style={{ fontSize: '10px', padding: '4px' }}>
                   <Checkbox
                     aria-label="Select all rows"
                     checked={visibleInvoices.length > 0 && selectedRows.length === visibleInvoices.length}
@@ -624,17 +624,17 @@ export default function Admin_invoice() {
                     }}
                   />
                 </Table.Th>
-                <Table.Th>Invoice No.</Table.Th>
-                <Table.Th visibleFrom="sm">Invoice Date</Table.Th>
-                <Table.Th visibleFrom="sm">Basic Amount (₹)</Table.Th>
-                <Table.Th visibleFrom="sm">GST Amount (₹)</Table.Th>
-                <Table.Th visibleFrom="sm">Total Amount (₹)</Table.Th>
-                <Table.Th visibleFrom="sm">Total Deduction (₹)</Table.Th>
-                <Table.Th visibleFrom="sm">Net Payable (₹)</Table.Th>
-                <Table.Th visibleFrom="sm">Amount Paid (₹)</Table.Th>
-                <Table.Th visibleFrom="sm">Balance (₹)</Table.Th>
-                <Table.Th visibleFrom="sm">Status</Table.Th>
-                <Table.Th>Action</Table.Th>
+                <Table.Th style={{ fontSize: '10px', padding: '4px' }}>Invoice No.</Table.Th>
+                <Table.Th style={{ fontSize: '10px', padding: '4px' }}>Invoice Date</Table.Th>
+                <Table.Th style={{ fontSize: '10px', padding: '4px' }}>Basic Amount (₹)</Table.Th>
+                <Table.Th style={{ fontSize: '10px', padding: '4px' }}>GST Amount (₹)</Table.Th>
+                <Table.Th style={{ fontSize: '10px', padding: '4px' }}>Total Amount (₹)</Table.Th>
+                <Table.Th style={{ fontSize: '10px', padding: '4px' }}>Total Deduction (₹)</Table.Th>
+                <Table.Th style={{ fontSize: '10px', padding: '4px' }}>Net Payable (₹)</Table.Th>
+                <Table.Th style={{ fontSize: '10px', padding: '4px' }}>Amount Paid (₹)</Table.Th>
+                <Table.Th style={{ fontSize: '10px', padding: '4px' }}>Balance (₹)</Table.Th>
+                <Table.Th style={{ fontSize: '10px', padding: '4px' }}>Status</Table.Th>
+                <Table.Th style={{ fontSize: '10px', padding: '4px' }}>Action</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -663,7 +663,7 @@ export default function Admin_invoice() {
                         }}
                       />
                     </Table.Td>
-                    <Table.Td>
+                    <Table.Td style={{ fontSize: '10px', padding: '4px' }}>
                       <Link
                         to={`/admin-invoice/${encodeURIComponent(invoice.id || "")}`}
                         style={{ color: "#1c7ed6", textDecoration: "none", cursor: "pointer" }}
@@ -671,16 +671,17 @@ export default function Admin_invoice() {
                         {invoice.invoiceNumber || "-"}
                       </Link>
                     </Table.Td>
-                    <Table.Td visibleFrom="sm">{formatDateToLong(invoice.invoiceDate)}</Table.Td>
-                    <Table.Td visibleFrom="sm">₹{formatMoney(basicAmount)}</Table.Td>
-                    <Table.Td visibleFrom="sm">₹{formatMoney(gstAmount)}</Table.Td>
-                    <Table.Td visibleFrom="sm">₹{formatMoney(totalAmount)}</Table.Td>
-                    <Table.Td visibleFrom="sm">₹{formatMoney(totalDeduction)}</Table.Td>
-                    <Table.Td visibleFrom="sm">₹{formatMoney(netPayable)}</Table.Td>
-                    <Table.Td visibleFrom="sm">₹{formatMoney(amountPaid)}</Table.Td>
-                    <Table.Td visibleFrom="sm">₹{formatMoney(balance)}</Table.Td>
-                    <Table.Td visibleFrom="sm">
+                    <Table.Td style={{ fontSize: '10px', padding: '4px' }}>{formatDateToLong(invoice.invoiceDate)}</Table.Td>
+                    <Table.Td style={{ fontSize: '10px', padding: '4px' }}>₹{formatMoney(basicAmount)}</Table.Td>
+                    <Table.Td style={{ fontSize: '10px', padding: '4px' }}>₹{formatMoney(gstAmount)}</Table.Td>
+                    <Table.Td style={{ fontSize: '10px', padding: '4px' }}>₹{formatMoney(totalAmount)}</Table.Td>
+                    <Table.Td style={{ fontSize: '10px', padding: '4px' }}>₹{formatMoney(totalDeduction)}</Table.Td>
+                    <Table.Td style={{ fontSize: '10px', padding: '4px' }}>₹{formatMoney(netPayable)}</Table.Td>
+                    <Table.Td style={{ fontSize: '10px', padding: '4px' }}>₹{formatMoney(amountPaid)}</Table.Td>
+                    <Table.Td style={{ fontSize: '10px', padding: '4px' }}>₹{formatMoney(balance)}</Table.Td>
+                    <Table.Td style={{ fontSize: '10px', padding: '4px' }}>
                       <Badge
+                        size="xs"
                         color={
                           invoice.status === "Paid"
                             ? "#20c997"

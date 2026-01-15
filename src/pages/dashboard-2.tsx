@@ -656,7 +656,7 @@ const Dashboard2 = () => {
                     style={{  sm: 0 }}
                   >
                     Clear
-                  </Button>
+                  </Button>‎ 
                </Flex>
             </Box>
           </Flex>
@@ -868,7 +868,7 @@ const Dashboard2 = () => {
                     <Table.Td style={{ textAlign: 'right' }}>
                       <Button 
                         component={Link} 
-                        to={`/invoice/${element.id}`} 
+                        to={`/admin-invoice/${element.id}`} 
                         variant="subtle" 
                         size="xs"
                       >
@@ -933,7 +933,7 @@ const Dashboard2 = () => {
 
                     <Button 
                       component={Link} 
-                      to={`/invoice/${element.id}`} 
+                      to={`/admin-invoice/${element.id}`} 
                       variant="light" 
                       color="blue"
                       fullWidth 
