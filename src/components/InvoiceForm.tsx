@@ -33,6 +33,7 @@ const projectModeMap: Record<string, string> = {
   "BGCL": "Direct",
   "STP": "Direct",
   "Bharat Net": "Direct",
+  "BHARAT NET": "Direct", // Added to match adminProjects
   "NFS AMC": "Back To Back",
 };
 
@@ -82,7 +83,7 @@ export default function InvoiceForm({
   };
 
   // State
-  const [project, setProject] = useState<string | null>();
+  const [project, setProject] = useState<string | null>(null);
   const userRole = getUserRole();
   const adminProjects = ["NFS", "GAIL", "BGCL", "STP", "BHARAT NET", "NFS AMC"];
 
@@ -92,12 +93,11 @@ export default function InvoiceForm({
 
   // Set mode automatically when project changes
   useEffect(() => {
-    if (project && projectModeMap[project]) {
-      setMode(projectModeMap[project]);
-    } else {
-      setMode("");
+    const newMode = (project && projectModeMap[project]) ? projectModeMap[project] : "";
+    if (mode !== newMode) {
+      setMode(newMode);
     }
-  }, [project]);
+  }, [project, mode]);
   const [state, setState] = useState<string | null>(null);
   const [billCategory, setBillCategory] = useState<string | null>(null);
   const [milestone, setMilestone] = useState<string | null>(null);
