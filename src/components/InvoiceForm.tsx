@@ -33,8 +33,50 @@ const projectModeMap: Record<string, string> = {
   "BGCL": "Direct",
   "STP": "Direct",
   "Bharat Net": "Direct",
-  "BHARAT NET": "Direct", // Added to match adminProjects
+  "BHARAT NET": "Direct",
   "NFS AMC": "Back To Back",
+};
+
+// Static Data Definitions (Moved outside to prevent re-renders)
+const MODES = ["Back To Back", "Direct"];
+const STATES = [
+  "West Bengal",
+  "Delhi",
+  "Bihar",
+  "MP",
+  "Kerala",
+  "Sikkim",
+  "Jharkhand",
+  "Andaman",
+];
+const BILL_CATEGORIES = [
+  "Service",
+  "Supply",
+  "ROW",
+  "AMC",
+  "Restoration Service",
+  "Restoration Supply",
+  "Restoration Row",
+  "Spares",
+  "Training",
+];
+const MILESTONES = ["60%", "90%", "100%"];
+const GST_OPTIONS = ["0%", "5%", "12%", "18%"];
+const RAW_STATUSES = ["Paid", "Under process", "Credit Note Issued", "Cancelled"];
+const ADMIN_PROJECTS = ["NFS", "GAIL", "BGCL", "STP", "BHARAT NET", "NFS AMC"];
+
+// Pre-compute matched status options
+const STATUS_OPTIONS = RAW_STATUSES.map((s) => ({
+  value: s,
+  label: s
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" "),
+}));
+
+// Dropdown style (Stable reference)
+const DROPDOWN_STYLES = {
+  dropdown: { maxHeight: 200, overflowY: "auto" as const },
 };
 
 type InvoiceFormProps = {
@@ -50,54 +92,26 @@ export default function InvoiceForm({
 }: InvoiceFormProps) {
   const [loading, setLoading] = useState(false);
 
-  // Dropdown options
-  const modes = ["Back To Back", "Direct"];
-  const states = [
-    "West Bengal",
-    "Delhi",
-    "Bihar",
-    "MP",
-    "Kerala",
-    "Sikkim",
-    "Jharkhand",
-    "Andaman",
-  ];
-  const billCategories = [
-    "Service",
-    "Supply",
-    "ROW",
-    "AMC",
-    "Restoration Service",
-    "Restoration Supply",
-    "Restoration Row",
-    "Spares",
-    "Training",
-  ];
-  const milestones = ["60%", "90%", "100%"];
-  const gstOptions = ["0%", "5%", "12%", "18%"];
-  const statuses = ["Paid", "Under process", "Credit Note Issued", "Cancelled", ];
-
-  // Dropdown style
-  const dropdownStyles = {
-    dropdown: { maxHeight: 200, overflowY: "auto" as const },
-  };
-
   // State
   const [project, setProject] = useState<string | null>(null);
   const userRole = getUserRole();
-  const adminProjects = ["NFS", "GAIL", "BGCL", "STP", "BHARAT NET", "NFS AMC"];
 
   const [mode, setMode] = useState<string | null>(null);
 
-
-
-  // Set mode automatically when project changes
-  useEffect(() => {
-    const newMode = (project && projectModeMap[project]) ? projectModeMap[project] : "";
-    if (mode !== newMode) {
-      setMode(newMode);
+  // Helper to set mode based on project
+  const updateModeForProject = (proj: string | null) => {
+    if (proj && projectModeMap[proj]) {
+      setMode(projectModeMap[proj]);
+    } else {
+      setMode(""); // Reset or default
     }
-  }, [project, mode]);
+  };
+
+  const handleProjectChange = (value: string | null) => {
+    setProject(value);
+    updateModeForProject(value);
+  };
+
   const [state, setState] = useState<string | null>(null);
   const [billCategory, setBillCategory] = useState<string | null>(null);
   const [milestone, setMilestone] = useState<string | null>(null);
@@ -154,7 +168,9 @@ export default function InvoiceForm({
           const res = await axios.get(`${BASE_URL}/api/v1/auth/me`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          setProject(res.data.projectRole || null);
+          const fetchedProject = res.data.projectRole || null;
+          setProject(fetchedProject);
+          updateModeForProject(fetchedProject);
         } catch (error) {
           console.error("Failed to fetch user project:", error);
           setProject(null);
@@ -416,7 +432,7 @@ export default function InvoiceForm({
                       label="Project"
                       data={adminProjects}
                       value={project}
-                      onChange={setProject}
+                      onChange={handleProjectChange}
                       required
                       styles={dropdownStyles}
                     />
