@@ -580,15 +580,15 @@ export default function Admin_invoice() {
 
         <Group mt={{ base: 'md', md: 0 }}>
           <Button variant="outline" onClick={() => setImportModalOpen(true)} leftSection={<IconUpload size={14} />}>
-            Import <Text span visibleFrom="sm"><span> </span>from CSV/XLSX</Text>
+            Import <Text span visibleFrom="sm"><span> </span>‎ from CSV/XLSX</Text>
           </Button>
 
           <Button variant="outline" onClick={handleExport} leftSection={<IconDownload size={14} />}>
-            Export <Text span visibleFrom="sm"><span> </span>to CSV/XLSX</Text>
+            Export <Text span visibleFrom="sm">‎  CSV/XLSX</Text>
           </Button>
 
           <Button leftSection={<IconPlus size={16} />} onClick={handleNew}>
-            <Text span visibleFrom="sm">New <span> </span></Text> Invoice
+            <Text span visibleFrom="sm">New ‎ </Text> Invoice
           </Button>
           {selectedRows.length > 0 && (
             <Button
