@@ -14,6 +14,7 @@ import {
   Paper,
   Divider,
   FileInput,
+  SimpleGrid,
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import axios from "axios";
@@ -409,7 +410,7 @@ export default function InvoiceForm({
             <Grid.Col span={{ base: 12, md: isPaid ? 6 : 12 }}>
               <Stack gap="md">
                 <Divider label="Project Details" labelPosition="left" />
-                <Group grow preventGrowOverflow={false} wrap="nowrap">
+                <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
                   {userRole === "Admin" ? (
                     <Select
                       label="Project"
@@ -436,9 +437,9 @@ export default function InvoiceForm({
                     styles={dropdownStyles}
                     disabled
                   />
-                </Group>
+                </SimpleGrid>
 
-                <Group grow>
+                <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
                   <Select
                     label="State"
                     data={states}
@@ -455,7 +456,7 @@ export default function InvoiceForm({
                     required
                     styles={dropdownStyles}
                   />
-                </Group>
+                </SimpleGrid>
 
                 <Select
                   label="Milestone"
@@ -466,7 +467,7 @@ export default function InvoiceForm({
                 />
 
                 <Divider label="Invoice Details" labelPosition="left" mt="xs" />
-                <Group grow>
+                <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
                   <TextInput
                     label="Invoice No."
                     value={invoiceNumber}
@@ -480,9 +481,9 @@ export default function InvoiceForm({
                     required
                     maxDate={new Date()}
                   />
-                </Group>
+                </SimpleGrid>
 
-                <Group grow>
+                <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
                   <DatePickerInput
                     label="Submission Date"
                     value={submissionDate}
@@ -513,9 +514,9 @@ export default function InvoiceForm({
                     step={0.01}
                     min={0}
                   />
-                </Group>
+                </SimpleGrid>
 
-                <Group grow>
+                <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
                   <Select
                     label="GST %"
                     data={gstOptions}
@@ -533,7 +534,7 @@ export default function InvoiceForm({
                     }
                     disabled
                   />
-                </Group>
+                </SimpleGrid>
 
                 <NumberInput
                   label="Total Amount (Inc. GST)"
@@ -647,7 +648,7 @@ export default function InvoiceForm({
                     }
                   />
 
-                  <Group grow>
+                  <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
                     <NumberInput
                       label="Retention"
                       value={retention}
@@ -664,9 +665,9 @@ export default function InvoiceForm({
                         setGstWithheld(typeof val === "number" ? val : "")
                       }
                     />
-                  </Group>
+                  </SimpleGrid>
 
-                  <Group grow>
+                  <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
                     <NumberInput
                       label="TDS"
                       decimalScale={2}
@@ -683,9 +684,9 @@ export default function InvoiceForm({
                         setGstTds(typeof val === "number" ? val : "")
                       }
                     />
-                  </Group>
+                  </SimpleGrid>
 
-                  <Group grow>
+                  <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
                     <NumberInput
                       label="BOCW"
                       decimalScale={2}
@@ -702,9 +703,9 @@ export default function InvoiceForm({
                         setLowDepth(typeof val === "number" ? val : "")
                       }
                     />
-                  </Group>
+                  </SimpleGrid>
 
-                  <Group grow>
+                  <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
                     <NumberInput
                       label="LD"
                       decimalScale={2}
@@ -721,9 +722,9 @@ export default function InvoiceForm({
                         setSlaPenalty(typeof val === "number" ? val : "")
                       }
                     />
-                  </Group>
+                  </SimpleGrid>
 
-                  <Group grow>
+                  <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
                     <NumberInput
                       label="Penalty"
                       decimalScale={2}
@@ -740,7 +741,7 @@ export default function InvoiceForm({
                         setOtherDeduction(typeof val === "number" ? val : "")
                       }
                     />
-                  </Group>
+                  </SimpleGrid>
 
                   <NumberInput
                     label="Total Deduction"
@@ -771,7 +772,7 @@ export default function InvoiceForm({
                     }
                     disabled
                   />
-                  <Group grow>
+                  <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
                     <NumberInput
                       label="Amount Paid By Client"
                       value={amountPaid}
@@ -798,7 +799,7 @@ export default function InvoiceForm({
                       maxDate={new Date()}
                       required
                     />
-                  </Group>
+                  </SimpleGrid>
                   <NumberInput
                     label="Balance Due"
                     value={

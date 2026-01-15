@@ -12,6 +12,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import classes from "./DoubleNavbar.module.css";
 import { getUserRole } from "../../lib/utils/getUserRole";
 import Cookies from "js-cookie";
+import { ThemeToggle } from "../ThemeToggle";
 
 // ✅ Utility to decode JWT
 function parseJwt(token: string | undefined) {
@@ -24,7 +25,11 @@ function parseJwt(token: string | undefined) {
   }
 }
 
-export default function NavbarNested() {
+interface NavbarNestedProps {
+  onNavItemClick?: () => void;
+}
+
+export default function NavbarNested({ onNavItemClick }: NavbarNestedProps) {
   // const location = useLocation();
   const navigate = useNavigate();
   const role = getUserRole();
@@ -100,6 +105,7 @@ const handleLogout = () => {
           boxShadow: isActive ? "0 1px 4px 0 rgba(25,113,194,0.07)" : undefined,
           transition: "background 0.2s, color 0.2s"
         })}
+        onClick={onNavItemClick}
       >
         <Icon size={18} style={{ marginRight: 4 }} />
         {link.label}
@@ -129,7 +135,10 @@ const handleLogout = () => {
           }}>
             <div
               style={{ display: "flex", alignItems: "center", minHeight: 48, cursor: "pointer" }}
-              onClick={() => navigate('/dashboard-2')}
+              onClick={() => {
+                navigate('/dashboard-2');
+                onNavItemClick?.();
+              }}
             >
               <Image
                 src="https://annuprojects.com/wp-content/uploads/2024/03/logo.png"
@@ -151,11 +160,18 @@ const handleLogout = () => {
 
           {/* Beautiful bottom section: logo, username, role, logout with icon */}
           <div style={{ marginTop: "auto", padding: "1.2rem", textAlign: "center", borderTop: "1px solid #e3e8ee" }}>
+
+
             <div style={{ marginBottom: 10, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
               <MantineLogo type="mark" size={28} style={{ marginBottom: 2 }} />
               <div style={{ fontWeight: 600, fontSize: 18 }}>{userName}</div>
               <div style={{ fontSize: 14, fontWeight: 600, color: '#91ADC8', marginBottom: 2 }}>{projectRole}</div>
             </div>
+            
+             <div style={{ marginBottom: 10 }}>
+               <ThemeToggle />
+             </div>
+
             <Button
               variant="outline"
               color="red"

@@ -12,6 +12,7 @@ import {
   Loader,
   Title,
   Pagination,
+  ScrollArea,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconSearch, IconPlus, IconEdit, IconTrash, IconEye } from "@tabler/icons-react";
@@ -159,13 +160,13 @@ export default function User_invoice() {
         </Text>
       </Stack>
 
-      <Group justify="space-between">
+      <Group justify="space-between" mb="md" align="center">
         <TextInput
           placeholder="Search invoices..."
           leftSection={<IconSearch size={16} />}
           value={search}
           onChange={(e) => setSearch(e.currentTarget.value)}
-          style={{ width: "300px" }}
+          w={{ base: '100%', sm: 300 }}
         />
         <Button leftSection={<IconPlus size={16} />} onClick={handleNew}>
           New Invoice
@@ -180,7 +181,8 @@ export default function User_invoice() {
         </Text>
       ) : (
         <>
-          <Table striped highlightOnHover withTableBorder>
+          <ScrollArea>
+          <Table striped highlightOnHover withTableBorder style={{ minWidth: 1200 }}>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>Invoice No.</Table.Th>
@@ -281,6 +283,7 @@ export default function User_invoice() {
               })}
             </Table.Tbody>
           </Table>
+          </ScrollArea>
 
           {/* Pagination: Show only if more than 30 invoices */}
           {filteredInvoices.length > PAGE_SIZE && (

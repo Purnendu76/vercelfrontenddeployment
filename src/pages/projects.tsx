@@ -22,7 +22,7 @@ import {
   Modal,
   TextInput,
   Select,
-  
+  ScrollArea,
 } from "@mantine/core";
 import { IconSearch, IconPlus } from "@tabler/icons-react";
 import axios from "axios";
@@ -169,27 +169,25 @@ export function AddProject() {
         </Stack>   
       </Group>
 
-     <Group justify="space-between" mb="md">
+      <Group justify="space-between" mb="md" align="center">
+        {/* LEFT SIDE → Search Box */}
+        <Group gap="xs" style={{ flex: 1 }}>
+          <TextInput
+            placeholder="Search by project"
+            leftSection={<IconSearch size={16} />}
+            value={search}
+            onChange={(e) => setSearch(e.currentTarget.value)}
+            w={{ base: '100%', sm: 200 }}
+          />
+        </Group>
 
-  {/* LEFT SIDE → Search Box */}
-  <Group gap="xs">
-    <TextInput
-      placeholder="Search by project"
-      leftSection={<IconSearch size={16} />}
-      value={search}
-      onChange={(e) => setSearch(e.currentTarget.value)}
-      style={{ width: 200 }}
-    />
-  </Group>
-
-  <Button
-    leftSection={<IconPlus size={16} />}
-    onClick={() => setModalOpen(true)}
-  >
-    Add New Project
-  </Button>
-
-</Group>
+        <Button
+          leftSection={<IconPlus size={16} />}
+          onClick={() => setModalOpen(true)}
+        >
+          Add New Project
+        </Button>
+      </Group>
       {loading ? (
         <Loader mt="lg" />
       ) : projects.length === 0 ? (
@@ -197,50 +195,52 @@ export function AddProject() {
           No projects found.
         </Text>
       ) : (
-        <Table striped highlightOnHover withTableBorder>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Project</Table.Th>
-              <Table.Th>Mode of Project</Table.Th>
-              <Table.Th>Invoices</Table.Th>
-              <Table.Th>Total Amount (₹)</Table.Th>
-              <Table.Th>Paid (₹)</Table.Th>
-              <Table.Th>Balance (₹)</Table.Th>
-              <Table.Th>Action</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {filtered.map((proj) => (
-              <Table.Tr key={proj.project}>
-                <Table.Td>
-                  <Badge
-                    color="blue"
-                    variant="light"
-                    component={Link}
-                    to={`/project/${encodeURIComponent(proj.project)}`}
-                    style={{ cursor: "pointer", textDecoration: "none" }}
-                  >
-                    {proj.project}
-                  </Badge>
-                </Table.Td>
-                <Table.Td>{projectModeMap[proj.project] || "-"}</Table.Td>
-                <Table.Td>{proj.invoiceCount}</Table.Td>
-                <Table.Td>₹{formatMoney(proj.totalAmount)}</Table.Td>
-                <Table.Td>₹{formatMoney(proj.paidAmount)}</Table.Td>
-                <Table.Td>₹{formatMoney(proj.balance)}</Table.Td>
-                <Table.Td>
-                  <Button
-                    size="xs"
-                    variant="light"
-                    onClick={() => navigate(`/project/${encodeURIComponent(proj.project)}`)}
-                  >
-                    View Invoices
-                  </Button>
-                </Table.Td>
+        <ScrollArea>
+          <Table striped highlightOnHover withTableBorder style={{ minWidth: 800 }}>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Project</Table.Th>
+                <Table.Th>Mode of Project</Table.Th>
+                <Table.Th>Invoices</Table.Th>
+                <Table.Th>Total Amount (₹)</Table.Th>
+                <Table.Th>Paid (₹)</Table.Th>
+                <Table.Th>Balance (₹)</Table.Th>
+                <Table.Th>Action</Table.Th>
               </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
+            </Table.Thead>
+            <Table.Tbody>
+              {filtered.map((proj) => (
+                <Table.Tr key={proj.project}>
+                  <Table.Td>
+                    <Badge
+                      color="blue"
+                      variant="light"
+                      component={Link}
+                      to={`/project/${encodeURIComponent(proj.project)}`}
+                      style={{ cursor: "pointer", textDecoration: "none" }}
+                    >
+                      {proj.project}
+                    </Badge>
+                  </Table.Td>
+                  <Table.Td>{projectModeMap[proj.project] || "-"}</Table.Td>
+                  <Table.Td>{proj.invoiceCount}</Table.Td>
+                  <Table.Td>₹{formatMoney(proj.totalAmount)}</Table.Td>
+                  <Table.Td>₹{formatMoney(proj.paidAmount)}</Table.Td>
+                  <Table.Td>₹{formatMoney(proj.balance)}</Table.Td>
+                  <Table.Td>
+                    <Button
+                      size="xs"
+                      variant="light"
+                      onClick={() => navigate(`/project/${encodeURIComponent(proj.project)}`)}
+                    >
+                      View Invoices
+                    </Button>
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </ScrollArea>
       )}
 
       {/* Add Project Modal (same pattern as Users page modal) */}

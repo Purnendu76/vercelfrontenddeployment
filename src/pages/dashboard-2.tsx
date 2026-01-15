@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useDisclosure } from '@mantine/hooks';
 import { Tooltip } from '@mantine/core';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -9,7 +10,6 @@ import {
   IconCheck,
   IconClock,
   IconFilter,
-  IconBell,
   IconChartBar,
   IconDashboard,
   IconX 
@@ -28,10 +28,10 @@ import {
   Box,
   ThemeIcon,
   Paper,
-  Avatar,
-  ActionIcon,
   Divider,
   Button,
+  SimpleGrid,
+  Flex
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import type { Invoice } from '../interface/Invoice';
@@ -527,121 +527,145 @@ const Dashboard2 = () => {
     }
   };
 
+  // --- Mobile Filter Toggle ---
+  const [filtersVisible, { toggle: toggleFilters }] = useDisclosure(false);
+
   return (
     <Box style={{ minHeight: '100vh' , width:'100%'}} >
       <Container size="100%" py="md"  >
-        {/* Header Section */}
         <Paper shadow="xs" p="md" radius="md" mb="xl" withBorder>
-          <Group justify="space-between" align="center">
-            <Group>
-               <ThemeIcon size="lg" variant="gradient" gradient={{ from: 'blue', to: 'cyan' }}>
-                 <IconDashboard size={20} />
-               </ThemeIcon>
-               <Title order={3}>Financial Dashboard</Title>
-            </Group>
-            <Paper
-              shadow="0"
-              radius="md"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                flexWrap: 'wrap',
-              }}
-            >
-              <Select
-                placeholder="Project"
-                value={project === 'All Projects' ? '' : project}
-                onChange={val => setProject(val || 'All Projects')}
-                data={projectOptions.map(p => ({ value: p === 'All Projects' ? '' : p, label: p }))}
-                w={170}
-                size="sm"
-                radius="md"
-                clearable={project !== 'All Projects'}
-                searchable
-              />
-              <Select
-                placeholder="State"
-                value={state === 'All States' ? '' : state}
-                onChange={val => setState(val || 'All States')}
-                data={stateOptions.map(s => ({ value: s === 'All States' ? '' : s, label: s }))}
-                w={140}
-                size="sm"
-                radius="md"
-                clearable={state !== 'All States'}
-                searchable
-              />
-              <Select
-                placeholder="Financial Year"
-                value={financialYear === 'all' ? '' : financialYear}
-                onChange={val => setFinancialYear(val || 'all')}
-                data={financialYearOptions.map(opt => ({ value: opt.value === 'all' ? '' : opt.value, label: opt.label }))}
-                w={180}
-                size="sm"
-                radius="md"
-                clearable={financialYear !== 'all'}
-              />
-              <Select
-                placeholder="Status"
-                value={statusFilter[0] === 'all' ? '' : statusFilter[0]}
-                onChange={val => {
-                  if (!val || val === 'all' || val === '') setStatusFilter(['all']);
-                  else setStatusFilter([val]);
-                }}
-                data={statusOptionsList.map(opt => ({
-                  value: opt.value === 'all' ? '' : opt.value,
-                  label: String(opt.label)
-                    .split(' ')
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                    .join(' ')
-                }))}
-                w={150}
-                size="sm"
-                radius="md"
-                clearable={statusFilter[0] !== 'all'}
-              />
-              <DatePickerInput
-                type="range"
-                value={dateRange}
-                onChange={(val) => setDateRange(val as [Date | null, Date | null])}
-                placeholder="Select date range"
-                w={180}
-                size="sm"
-                radius="md"
-                clearable
-                dropdownType="modal"
-                allowSingleDateInRange
-                maxDate={new Date(2100, 11, 31)}
-                minDate={new Date(2000, 0, 1)}
-                label={null}
-                disabled={financialYear !== 'all'}
-              />
+          <Flex 
+            direction={{ base: 'column', sm: 'row' }} 
+            align={{ base: 'stretch', sm: 'center' }} 
+            gap="md"
+          >
+            
+            {/* Title & Mobile Toggle Row */}
+            <Flex justify="space-between" align="center" style={{ flexShrink: 0 }}>
               
-              {/* --- CLEAR BUTTON --- */}
-              <Button 
-                variant="subtle" 
-                color="red" 
-                size="sm" 
-                radius="md"
-                leftSection={<IconX size={16} />}
-                disabled={!isFilterActive} // Disable if no filters are active
-                onClick={handleClearFilters}
-              >
-                Clear
-              </Button>
-              {/* -------------------- */}
+               <Group gap="xs" wrap="nowrap">
+                  <ThemeIcon size="lg" variant="gradient" gradient={{ from: 'blue', to: 'cyan' }}>
+                    <IconDashboard size={20} />
+                  </ThemeIcon>
+                  <Title order={3} fz={{ base: 16, sm: 22 }} style={{ whiteSpace: 'nowrap' }}>Financial Dashboard</Title>
+               </Group>
+      
+               
+               <Button 
+                 hiddenFrom="sm" 
+                 onClick={toggleFilters} 
+                 variant="outline" 
+                 leftSection={<IconFilter size={12} />}
+                 size="compact-xs"
+                 h={22}
+                 style={{ flexShrink: 0, fontSize: '11px' }}
+               >
+                 {filtersVisible ? 'Hide' : 'Filters'}
+               </Button>
+          
+            </Flex>
 
-              <Divider orientation="vertical" mx={4} />
-              <ActionIcon variant="light" size="lg" radius="md"><IconBell size={18} /></ActionIcon>
-              <Avatar radius="xl" color="blue">AD</Avatar>
-            </Paper>
-          </Group>
+            {/* Filters Section */}
+            <Box 
+              style={{ flexGrow: 1 }} 
+              display={{ base: filtersVisible ? 'block' : 'none', sm: 'block' }}
+            >
+               <Flex 
+                 gap={10} 
+                 align="center"
+                 wrap={{ base: 'wrap', lg: 'nowrap' }} // Wrap on mobile, single line on large screens
+                 justify={{ base: 'flex-start', sm: 'flex-end' }} // Align right on desktop
+               >
+                  <Select
+                    placeholder="Project"
+                    value={project === 'All Projects' ? '' : project}
+                    onChange={val => setProject(val || 'All Projects')}
+                    data={projectOptions.map(p => ({ value: p === 'All Projects' ? '' : p, label: p }))}
+                    w={{ base: '100%', sm: 150 }}
+                    size="sm"
+                    radius="md"
+                    clearable={project !== 'All Projects'}
+                    searchable
+                  />
+                  <Select
+                    placeholder="State"
+                    value={state === 'All States' ? '' : state}
+                    onChange={val => setState(val || 'All States')}
+                    data={stateOptions.map(s => ({ value: s === 'All States' ? '' : s, label: s }))}
+                    w={{ base: '100%', sm: 120 }}
+                    size="sm"
+                    radius="md"
+                    clearable={state !== 'All States'}
+                    searchable
+                  />
+                  <Select
+                    placeholder="Fin. Year"
+                    value={financialYear === 'all' ? '' : financialYear}
+                    onChange={val => setFinancialYear(val || 'all')}
+                    data={financialYearOptions.map(opt => ({ value: opt.value === 'all' ? '' : opt.value, label: opt.label }))}
+                    w={{ base: '100%', sm: 130 }}
+                    size="sm"
+                    radius="md"
+                    clearable={financialYear !== 'all'}
+                  />
+                  <Select
+                    placeholder="Status"
+                    value={statusFilter[0] === 'all' ? '' : statusFilter[0]}
+                    onChange={val => {
+                      if (!val || val === 'all' || val === '') setStatusFilter(['all']);
+                      else setStatusFilter([val]);
+                    }}
+                    data={statusOptionsList.map(opt => ({
+                      value: opt.value === 'all' ? '' : opt.value,
+                      label: String(opt.label)
+                        .split(' ')
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                        .join(' ')
+                    }))}
+                    w={{ base: '100%', sm: 120 }}
+                    size="sm"
+                    radius="md"
+                    clearable={statusFilter[0] !== 'all'}
+                  />
+                  <DatePickerInput
+                    type="range"
+                    value={dateRange}
+                    onChange={(val) => setDateRange(val as [Date | null, Date | null])}
+                    placeholder="Date Range"
+                    w={{ base: '100%', sm: 180 }}
+                    size="sm"
+                    radius="md"
+                    clearable
+                    dropdownType="modal"
+                    allowSingleDateInRange
+                    maxDate={new Date(2100, 11, 31)}
+                    minDate={new Date(2000, 0, 1)}
+                    label={null}
+                    disabled={financialYear !== 'all'}
+                  />
+                  
+                  <Button 
+                    variant="subtle" 
+                    color="red" 
+                    size="sm" 
+                    radius="md"
+                    px={5}
+                    leftSection={<IconX size={16} />}
+                    disabled={!isFilterActive} 
+                    onClick={handleClearFilters}
+                    style={{  sm: 0 }}
+                  >
+                    Clear
+                  </Button>
+               </Flex>
+            </Box>
+          </Flex>
         </Paper>
 
         {/* Stats Grid */}
-        <Group mb="xl" gap="md" align="stretch" style={{ width: '100%', flexWrap: 'nowrap' }}>
+        <SimpleGrid cols={{ base: 1, sm: 2, lg: 5 }} spacing="md" mb="xl">
           
-          <Box style={{ cursor: 'pointer', flex: 1, minWidth: 0 }} onClick={handleStatCardClick}>
+          <Box style={{ cursor: 'pointer', minWidth: 0 }} onClick={handleStatCardClick}>
             <StatCard 
               title="Basic Invoice Value" 
               value={summary.basic} 
@@ -650,7 +674,7 @@ const Dashboard2 = () => {
             />
           </Box>
 
-          <Box style={{ cursor: 'pointer', flex: 1, minWidth: 0 }} onClick={handleStatCardClick}>
+          <Box style={{ cursor: 'pointer', minWidth: 0 }} onClick={handleStatCardClick}>
             <StatCard 
               title="GST Amount" 
               value={summary.gst} 
@@ -659,7 +683,7 @@ const Dashboard2 = () => {
             />
           </Box>
 
-            <Box style={{ cursor: 'pointer', flex: 1, minWidth: 0 }} onClick={handleStatCardClick}>
+          <Box style={{ cursor: 'pointer', minWidth: 0 }} onClick={handleStatCardClick}>
             <StatCard 
               title="Total Invoice Amount" 
               value={summary.totalAmount} 
@@ -668,7 +692,7 @@ const Dashboard2 = () => {
             />
           </Box>
 
-          <Box style={{ cursor: 'pointer', flex: 1, minWidth: 0 }} onClick={handleStatCardClick}>
+          <Box style={{ cursor: 'pointer', minWidth: 0 }} onClick={handleStatCardClick}>
             <StatCard 
               title="Total Paid" 
               value={summary.paid} 
@@ -677,7 +701,7 @@ const Dashboard2 = () => {
             />
           </Box>
           <Box
-            style={{ cursor: 'pointer', flex: 1, minWidth: 0 }}
+            style={{ cursor: 'pointer', minWidth: 0 }}
             onClick={() => {
               // Build query params for filters
               const params = [
@@ -696,7 +720,7 @@ const Dashboard2 = () => {
               color="red" 
             />
           </Box>
-        </Group>
+        </SimpleGrid>
 
 
         {/* Analytics Grid */}
@@ -787,93 +811,144 @@ const Dashboard2 = () => {
           </Grid.Col>
         </Grid>
 
-        {/* Latest Invoices Table (filtered) */}
+        {/* Latest Invoices Table (filtered) - DESKTOP */}
         <Card shadow="xs" radius="md" withBorder mt="md" p="lg">
           <Group justify="space-between" align="center" mb="md">
             <Title order={5} mb={0}>Latest Invoices</Title>
             <Button
               component={Link}
               to="/admin-invoice"
-              variant="outline"
-              size="xs"
+              variant="light"
               color="blue"
-              radius="md"
+              size="xs"
+              rightSection={<IconFileInvoice size={14} />}
             >
-              Full Details
+              View All
             </Button>
           </Group>
-          <Table striped highlightOnHover withTableBorder>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Invoice No.</Table.Th>
-                <Table.Th>Invoice Date</Table.Th>
-                <Table.Th>Basic Amount (₹)</Table.Th>
-                <Table.Th>GST Amount (₹)</Table.Th>
-                <Table.Th>Total Amount (₹)</Table.Th>
-                <Table.Th>Total Deduction (₹)</Table.Th>
-                <Table.Th>Net Payable (₹)</Table.Th>
-                <Table.Th>Amount Paid (₹)</Table.Th>
-                <Table.Th>Balance (₹)</Table.Th>
-                <Table.Th>Status</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {(filteredInvoices || [])
-                .slice()
-                .sort((a, b) => {
-                  const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-                  const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-                  return bDate - aDate;
-                })
-                .slice(0, 10)
-                .map((invoice) => {
-                const basicAmount = Number(invoice.invoiceBasicAmount ?? 0);
-                const gstAmount = Number(invoice.invoiceGstAmount ?? 0);
-                const totalAmount = Number(invoice.totalAmount ?? 0);
-                const totalDeduction = Number(invoice.totalDeduction ?? 0);
-                const netPayable = Number(invoice.netPayable ?? 0);
-                const amountPaid = Number(invoice.amountPaidByClient ?? 0);
-                const balance = Number(invoice.balance ?? 0);
-                return (
-                  <Table.Tr key={invoice.id}>
-                    <Table.Td>
-                      {invoice.invoiceNumber ? (
-                           <Link
-                          to={`/admin-invoice/${encodeURIComponent(invoice.id || "")}`}
-                        style={{ color: "#1c7ed6", textDecoration: "none", cursor: "pointer" }}
-                      >
-                          {invoice.invoiceNumber}
-                        </Link>
-                      ) : "-"}
-                    </Table.Td>
-                    <Table.Td>{invoice.invoiceDate ? (typeof invoice.invoiceDate === 'string' ? new Date(invoice.invoiceDate).toLocaleDateString() : invoice.invoiceDate.toLocaleDateString()) : "-"}</Table.Td>
-                    <Table.Td>₹{basicAmount.toFixed(2)}</Table.Td>
-                    <Table.Td>₹{gstAmount.toFixed(2)}</Table.Td>
-                    <Table.Td>₹{totalAmount.toFixed(2)}</Table.Td>
-                    <Table.Td>₹{totalDeduction.toFixed(2)}</Table.Td>
-                    <Table.Td>₹{netPayable.toFixed(2)}</Table.Td>
-                    <Table.Td>₹{amountPaid.toFixed(2)}</Table.Td>
-                    <Table.Td>₹{balance.toFixed(2)}</Table.Td>
+          {/* Desktop View */}
+          <Box visibleFrom="sm" style={{ overflowX: 'auto' }}>
+            <Table striped highlightOnHover verticalSpacing="xs">
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Invoice No.</Table.Th>
+                  <Table.Th>Project</Table.Th>
+                  <Table.Th>Date</Table.Th>
+                  <Table.Th>Net Payable</Table.Th>
+                  <Table.Th>Status</Table.Th>
+                  <Table.Th style={{ textAlign: 'right' }}>Action</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {(filteredInvoices.slice(0, 50) || []).map((element) => (
+                  <Table.Tr key={element.id}>
+                    <Table.Td style={{ fontWeight: 500 }}>{element.invoiceNumber}</Table.Td>
+                    <Table.Td>{
+                       Array.isArray(element.project) ? element.project[0] : (element.project || '-')
+                    }</Table.Td>
+                    <Table.Td>{
+                      element.invoiceDate 
+                        ? new Date(element.invoiceDate).toLocaleDateString()
+                        : '-'
+                    }</Table.Td>
+                    <Table.Td style={{ fontWeight: 600 }}>₹{Number(element.netPayable || 0).toLocaleString()}</Table.Td>
                     <Table.Td>
                       <Badge
                         color={
-                          invoice.status === "Paid"
-                            ? "#20c997"
-                            : invoice.status === "Under process"
-                            ? "#228be6"
-                            : invoice.status === "Cancelled"
-                            ? "#fa5252"
-                            : "#FFBF00"
+                          (element.status === 'Paid') ? 'green' :
+                          (element.status === 'Cancelled') ? 'red' :
+                          (element.status === 'Credit Note Issued') ? 'yellow' :
+                          'blue'
                         }
+                        variant="light"
                       >
-                        {invoice.status || "-"}
+                        {element.status || 'Pending'}
                       </Badge>
                     </Table.Td>
+                    <Table.Td style={{ textAlign: 'right' }}>
+                      <Button 
+                        component={Link} 
+                        to={`/invoice/${element.id}`} 
+                        variant="subtle" 
+                        size="xs"
+                      >
+                        View
+                      </Button>
+                    </Table.Td>
                   </Table.Tr>
-                );
-              })}
-            </Table.Tbody>
-          </Table>
+                ))}
+                {filteredInvoices.length === 0 && (
+                  <Table.Tr>
+                    <Table.Td colSpan={6}>
+                      <Text c="dimmed" ta="center" size="sm">No invoices found matching current filters.</Text>
+                    </Table.Td>
+                  </Table.Tr>
+                )}
+              </Table.Tbody>
+            </Table>
+          </Box>
+
+          {/* Mobile View - Cards */}
+          <Box hiddenFrom="sm">
+            {filteredInvoices.length > 0 ? (
+              <Stack gap="sm">
+                {(filteredInvoices.slice(0, 10) || []).map((element) => (
+                  <Card key={element.id} shadow="sm" padding="sm" radius="md" withBorder>
+                    <Group justify="space-between" mb="xs">
+                       <Text fw={700} size="sm">#{element.invoiceNumber}</Text>
+                       <Badge
+                        size="sm"
+                        color={
+                          (element.status === 'Paid') ? 'green' :
+                          (element.status === 'Cancelled') ? 'red' :
+                          (element.status === 'Credit Note Issued') ? 'yellow' :
+                          'blue'
+                        }
+                        variant="light"
+                      >
+                        {element.status || 'Pending'}
+                      </Badge>
+                    </Group>
+                    
+                    <Stack gap={4} mb="xs">
+                      <Group justify="space-between">
+                        <Text size="xs" c="dimmed">Project</Text>
+                        <Text size="xs" fw={500} truncate maw={200}>
+                          {Array.isArray(element.project) ? element.project[0] : (element.project || '-')}
+                        </Text>
+                      </Group>
+                      <Group justify="space-between">
+                        <Text size="xs" c="dimmed">Date</Text>
+                        <Text size="xs">
+                          {element.invoiceDate 
+                            ? new Date(element.invoiceDate).toLocaleDateString() 
+                            : '-'}
+                        </Text>
+                      </Group>
+                      <Group justify="space-between">
+                        <Text size="xs" c="dimmed">Net Payable</Text>
+                        <Text size="sm" fw={700}>₹{Number(element.netPayable || 0).toLocaleString()}</Text>
+                      </Group>
+                    </Stack>
+
+                    <Button 
+                      component={Link} 
+                      to={`/invoice/${element.id}`} 
+                      variant="light" 
+                      color="blue"
+                      fullWidth 
+                      size="xs" 
+                      mt="xs"
+                    >
+                      View Details
+                    </Button>
+                  </Card>
+                ))}
+              </Stack>
+            ) : (
+                <Text c="dimmed" ta="center" size="sm" py="md">No invoices found matching current filters.</Text>
+            )}
+          </Box>
         </Card>
 
         <Text c="dimmed" size="xs" ta="center" mb="md" mt="lg">

@@ -309,8 +309,8 @@ export default function InvoiceDetails() {
                   <Text size="xs" c="gray.6" tt="uppercase" fw={600} >Invoice Document</Text>
                   <Title 
                     order={1} 
+                    fz={{ base: 28, md: 44 }}
                     style={{ 
-                      fontSize: rem(44), 
                       fontWeight: 900, 
                       color: "#1a1a1a",
                       marginTop: "0.75rem",
@@ -341,7 +341,7 @@ export default function InvoiceDetails() {
                 </Group>
               </Stack>
               
-              <Group gap="xl" align="flex-start">
+              <Group gap="xl" align="flex-start" wrap="wrap">
                 <Paper 
                   p="lg" 
                   radius="lg" 
@@ -350,7 +350,8 @@ export default function InvoiceDetails() {
                   style={{ 
                     background: "#f8f9fa",
                     border: "1px solid #e9ecef",
-                    minWidth: "160px",
+                    flex: 1,
+                    minWidth: "140px",
                     textAlign: "center"
                   }}
                 >
@@ -368,7 +369,8 @@ export default function InvoiceDetails() {
                   style={{ 
                     background: balance > 0 ? "#fff5f5" : "#f0fff4",
                     border: balance > 0 ? "1px solid #ffe0e0" : "1px solid #e0f9e3",
-                    minWidth: "160px",
+                    flex: 1,
+                    minWidth: "140px",
                     textAlign: "center"
                   }}
                 >

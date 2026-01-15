@@ -16,10 +16,12 @@ import {
   FileInput,
   Checkbox,
   Pagination,
+  ScrollArea,
+  Flex
 } from "@mantine/core";
 import { DatePickerInput } from '@mantine/dates';
 import { useDisclosure } from "@mantine/hooks";
-import { IconSearch, IconPlus, IconEdit, IconTrash, IconDownload, IconEye, IconUpload } from "@tabler/icons-react";
+import { IconSearch, IconPlus, IconEdit, IconTrash, IconDownload, IconEye, IconUpload, IconFilter } from "@tabler/icons-react";
 import axios from "axios";
 import InvoiceForm from "../components/InvoiceForm";
 import InvoicePopup from "./InvoicePopup";
@@ -124,6 +126,7 @@ export default function Admin_invoice() {
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
 
   const [opened, { open, close }] = useDisclosure(false);
+  const [filtersVisible, { toggle: toggleFilters }] = useDisclosure(false);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -514,28 +517,39 @@ export default function Admin_invoice() {
   return (
     <Stack>
       <Stack gap="xs" mb="md">
-        <Title order={2}>Admin Invoice</Title>
+        <Group justify="space-between" align="center">
+           <Title order={2}>Admin Invoice</Title>
+           <Button 
+             hiddenFrom="sm" 
+             onClick={toggleFilters} 
+             variant="outline" 
+             leftSection={<IconFilter size={14} />}
+             size="compact-xs"
+             >
+             {filtersVisible ? 'Hide' : 'Filters'}
+           </Button>
+        </Group>
         <Text c="dimmed" size="sm">
           Manage, track, and update invoices from this dashboard.
         </Text>
         <Text c="dimmed" >Total Number of Invoices: <span style={{color:'red',width:'30px'}}>{invoices.length}</span></Text>
       </Stack>
 
-      <Group justify="space-between">
-        <Group gap="sm">
+      <Flex justify="space-between" align={{base: 'stretch', sm: 'center'}} direction={{ base: 'column', sm: 'row' }}>
+        <Group gap="sm" style={{ flex: 1 }} display={{ base: filtersVisible ? 'flex' : 'none', sm: 'flex' }}>
           <TextInput
             placeholder="Search invoices..."
             leftSection={<IconSearch size={16} />}
             value={search}
             onChange={(e) => setSearch(e.currentTarget.value)}
-            style={{ width: "220px" }}
+            w={{ base: '100%', sm: 220 }}
           />
           <Select
             placeholder="Filter by project"
             value={projectFilter}
             onChange={setProjectFilter}
             data={projectOptions}
-            style={{ width: 180 }}
+            w={{ base: '100%', sm: 180 }}
             clearable
           />
           <Select
@@ -543,7 +557,7 @@ export default function Admin_invoice() {
             value={statusFilter}
             onChange={setStatusFilter}
             data={statusOptions}
-            style={{ width: 180 }}
+            w={{ base: '100%', sm: 180 }}
             clearable
           />
           <DatePickerInput
@@ -552,7 +566,7 @@ export default function Admin_invoice() {
             onChange={(val) => setDateRange(val as [Date | null, Date | null])}
             placeholder="Date range"
             radius="md"
-            style={{ minWidth: 220 }}
+            w={{ base: '100%', sm: 220 }}
             mx={2}
             clearable
             dropdownType="modal"
@@ -564,17 +578,17 @@ export default function Admin_invoice() {
           />
         </Group>
 
-        <Group>
+        <Group mt={{ base: 'md', md: 0 }}>
           <Button variant="outline" onClick={() => setImportModalOpen(true)} leftSection={<IconUpload size={14} />}>
-            Import from CSV/Excel
+            Import <Text span visibleFrom="sm"> from CSV/XLSX</Text>
           </Button>
 
           <Button variant="outline" onClick={handleExport} leftSection={<IconDownload size={14} />}>
-            Export as Excel
+            Export <Text span visibleFrom="sm"> to CSV/XLSX</Text>
           </Button>
 
           <Button leftSection={<IconPlus size={16} />} onClick={handleNew}>
-            New Invoice
+            <Text span visibleFrom="sm">New </Text>Invoice
           </Button>
           {selectedRows.length > 0 && (
             <Button
@@ -582,17 +596,18 @@ export default function Admin_invoice() {
               variant="outline"
               onClick={handleDeleteSelected}
             >
-              Delete Selected ({selectedRows.length})
+              Delete ({selectedRows.length})
             </Button>
           )}
         </Group>
-      </Group>
+      </Flex>
 
       {loading || pageLoading ? (
         <Loader mt="lg" />
       ) : visibleInvoices.length > 0 ? (
         <>
-          <Table striped highlightOnHover withTableBorder>
+          <ScrollArea>
+            <Table striped highlightOnHover withTableBorder style={{ minWidth: 1200 }}>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>
@@ -697,6 +712,7 @@ export default function Admin_invoice() {
               })}
             </Table.Tbody>
           </Table>
+          </ScrollArea>
           {/* Mantine Pagination Controls */}
           {totalPages > 1 && (
             <Group justify="center" mt="md">

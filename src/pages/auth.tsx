@@ -82,7 +82,8 @@ export default function Auth() {
       <Flex h="100%" style={{ overflow: "hidden" }}>
         {/* Left side - Image */}
         <Box
-          w="75%"
+          w={{ base: 0, md: '70%', lg: '75%' }}
+          display={{ base: 'none', md: 'block' }}
           pos="relative"
           style={{ borderRadius: "0 20px 20px 0", overflow: "hidden" }}
         >
@@ -125,7 +126,7 @@ export default function Auth() {
         </Box>
 
         {/* Right side - Login Form */}
-        <Box w="25%" bg="white" p={40}>
+        <Box w={{ base: '100%', md: '30%', lg: '25%' }} bg="white" p={{ base: 20, md: 40 }}>
           <Center h="100%">
             <Stack w="100%" gap="lg">
               <Stack gap={0} mb={10}>

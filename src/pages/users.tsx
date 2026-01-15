@@ -12,6 +12,7 @@ import {
   Select,
   Button,
   Modal,
+  ScrollArea,
 } from "@mantine/core";
 import { IconTrash, IconSearch, IconPlus } from "@tabler/icons-react";
 import axios from "axios";
@@ -172,94 +173,94 @@ setAddModalOpen(false);
       </Group>
 
       {/* Search */}
-     <Group justify="space-between">
-
-       <TextInput
-        placeholder="Search by name or email..."
-        leftSection={<IconSearch size={16} />}
-        value={search}
-        onChange={(e) => setSearch(e.currentTarget.value)}
-        style={{ width: "300px", marginBottom: 16 }}
-      />
-       <Button
+       <Group justify="space-between" align="center" mb="md">
+        <TextInput
+          placeholder="Search by name or email..."
+          leftSection={<IconSearch size={16} />}
+          value={search}
+          onChange={(e) => setSearch(e.currentTarget.value)}
+          w={{ base: '100%', sm: 300 }}
+        />
+        <Button
           leftSection={<IconPlus size={16} />}
           onClick={() => setAddModalOpen(true)}
-          
         >
           Add User
         </Button>
-     </Group>
+      </Group>
 
       {/* Table */}
       {loading ? (
         <Loader mt="lg" />
       ) : (
-        <Table striped highlightOnHover withTableBorder>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Name</Table.Th>
-              <Table.Th>Email</Table.Th>
-              <Table.Th>Role</Table.Th>
-              <Table.Th>Project Role</Table.Th>
-              <Table.Th>Action</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {filteredUsers.length > 0 ? (
-              filteredUsers.map((user) => (
-                <Table.Tr key={user.id}>
-                  <Table.Td>{user.user_name}</Table.Td>
-                  <Table.Td>{user.email}</Table.Td>
-                  <Table.Td>{(user.role ? String(user.role) : "user")}</Table.Td>
-                  <Table.Td>{user.projectRole || "-"}</Table.Td>
-                  <Table.Td>
-                    <Group gap="xs">
-                      <ActionIcon
-                        color="red"
-                        variant="light"
-                        onClick={() => handleDelete(user.id)}
-                        size="sm"
-                      >
-                        <IconTrash size={16} />
-                      </ActionIcon>
-
-                      <Button
-                        size="xs"
-                        variant="light"
-                        onClick={() =>
-                          setDropdownOpen(dropdownOpen === user.id ? null : user.id)
-                        }
-                      >
-                        Assign
-                      </Button>
-
-                      {dropdownOpen === user.id && (
-                        <Select
-                          autoFocus
-                          data={projectRoles.map((p) => ({
-                            value: p,
-                            label: p.replace("_", " "),
-                          }))}
-                          value={user.projectRole || ""}
-                          onChange={(val) => val && handleProjectRoleChange(user.id, val)}
-                          style={{ width: 150 }}
-                        />
-                      )}
-                    </Group>
+        <ScrollArea>
+          <Table striped highlightOnHover withTableBorder style={{ minWidth: 800 }}>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Name</Table.Th>
+                <Table.Th>Email</Table.Th>
+                <Table.Th>Role</Table.Th>
+                <Table.Th>Project Role</Table.Th>
+                <Table.Th>Action</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((user) => (
+                  <Table.Tr key={user.id}>
+                    <Table.Td>{user.user_name}</Table.Td>
+                    <Table.Td>{user.email}</Table.Td>
+                    <Table.Td>{(user.role ? String(user.role) : "user")}</Table.Td>
+                    <Table.Td>{user.projectRole || "-"}</Table.Td>
+                    <Table.Td>
+                      <Group gap="xs">
+                        <ActionIcon
+                          color="red"
+                          variant="light"
+                          onClick={() => handleDelete(user.id)}
+                          size="sm"
+                        >
+                          <IconTrash size={16} />
+                        </ActionIcon>
+  
+                        <Button
+                          size="xs"
+                          variant="light"
+                          onClick={() =>
+                            setDropdownOpen(dropdownOpen === user.id ? null : user.id)
+                          }
+                        >
+                          Assign
+                        </Button>
+  
+                        {dropdownOpen === user.id && (
+                          <Select
+                            autoFocus
+                            data={projectRoles.map((p) => ({
+                              value: p,
+                              label: p.replace("_", " "),
+                            }))}
+                            value={user.projectRole || ""}
+                            onChange={(val) => val && handleProjectRoleChange(user.id, val)}
+                            style={{ width: 150 }}
+                          />
+                        )}
+                      </Group>
+                    </Table.Td>
+                  </Table.Tr>
+                ))
+              ) : (
+                <Table.Tr>
+                  <Table.Td colSpan={5}>
+                    <Text ta="center" c="dimmed">
+                      No users found
+                    </Text>
                   </Table.Td>
                 </Table.Tr>
-              ))
-            ) : (
-              <Table.Tr>
-                <Table.Td colSpan={4}>
-                  <Text ta="center" c="dimmed">
-                    No users found
-                  </Text>
-                </Table.Td>
-              </Table.Tr>
-            )}
-          </Table.Tbody>
-        </Table>
+              )}
+            </Table.Tbody>
+          </Table>
+        </ScrollArea>
       )}
 
       {/* Add User Modal */}
