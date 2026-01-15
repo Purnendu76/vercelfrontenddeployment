@@ -101,6 +101,14 @@ const routes: RouteObject[] = [
         ),
       },
       {
+        path: "/invoice/:invoiceNumber",
+        element: (
+          <PrivateRoute allowedRoles={["Admin", "user"]}>
+            <InvoiceDetails />
+          </PrivateRoute>
+        ),
+      },
+      {
         path: "/users",
         element: (
           <PrivateRoute allowedRoles={["Admin"]}>
