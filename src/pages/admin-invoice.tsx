@@ -610,7 +610,7 @@ export default function Admin_invoice() {
             <Table striped highlightOnHover withTableBorder style={{ minWidth: 1200 }}>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>
+                <Table.Th visibleFrom="sm">
                   <Checkbox
                     aria-label="Select all rows"
                     checked={visibleInvoices.length > 0 && selectedRows.length === visibleInvoices.length}
@@ -625,14 +625,14 @@ export default function Admin_invoice() {
                   />
                 </Table.Th>
                 <Table.Th>Invoice No.</Table.Th>
-                <Table.Th>Invoice Date</Table.Th>
+                <Table.Th visibleFrom="sm">Invoice Date</Table.Th>
                 <Table.Th visibleFrom="sm">Basic Amount (₹)</Table.Th>
                 <Table.Th visibleFrom="sm">GST Amount (₹)</Table.Th>
                 <Table.Th visibleFrom="sm">Total Amount (₹)</Table.Th>
                 <Table.Th visibleFrom="sm">Total Deduction (₹)</Table.Th>
                 <Table.Th visibleFrom="sm">Net Payable (₹)</Table.Th>
                 <Table.Th visibleFrom="sm">Amount Paid (₹)</Table.Th>
-                <Table.Th visibleFrom="sm">Balance (₹)</Table.Th>
+                <Table.Th>Balance (₹)</Table.Th>
                 <Table.Th visibleFrom="sm">Status</Table.Th>
                 <Table.Th>Action</Table.Th>
               </Table.Tr>
@@ -649,7 +649,7 @@ export default function Admin_invoice() {
                 const isSelected = selectedRows.includes(invoice.id);
                 return (
                   <Table.Tr key={invoice.id} bg={isSelected ? 'var(--mantine-color-blue-light)' : undefined}>
-                    <Table.Td>
+                    <Table.Td visibleFrom="sm">
                       <Checkbox
                         aria-label="Select row"
                         checked={isSelected}
@@ -670,15 +670,32 @@ export default function Admin_invoice() {
                       >
                         {invoice.invoiceNumber || "-"}
                       </Link>
+                      <Badge
+                        hiddenFrom="sm"
+                        display="block"
+                        mt={4}
+                        size="xs"
+                        color={
+                          invoice.status === "Paid"
+                            ? "#20c997"
+                            : invoice.status === "Under process"
+                            ? "#228be6"
+                            : invoice.status === "Cancelled"
+                            ? "#fa5252"
+                            : "#FFBF00"
+                        }
+                      >
+                        {invoice.status || "-"}
+                      </Badge>
                     </Table.Td>
-                    <Table.Td>{formatDateToLong(invoice.invoiceDate)}</Table.Td>
+                    <Table.Td visibleFrom="sm">{formatDateToLong(invoice.invoiceDate)}</Table.Td>
                     <Table.Td visibleFrom="sm">₹{formatMoney(basicAmount)}</Table.Td>
                     <Table.Td visibleFrom="sm">₹{formatMoney(gstAmount)}</Table.Td>
                     <Table.Td visibleFrom="sm">₹{formatMoney(totalAmount)}</Table.Td>
                     <Table.Td visibleFrom="sm">₹{formatMoney(totalDeduction)}</Table.Td>
                     <Table.Td visibleFrom="sm">₹{formatMoney(netPayable)}</Table.Td>
                     <Table.Td visibleFrom="sm">₹{formatMoney(amountPaid)}</Table.Td>
-                    <Table.Td visibleFrom="sm">₹{formatMoney(balance)}</Table.Td>
+                    <Table.Td>₹{formatMoney(balance)}</Table.Td>
                     <Table.Td visibleFrom="sm">
                       <Badge
                         color={

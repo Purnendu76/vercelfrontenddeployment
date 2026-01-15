@@ -12,8 +12,10 @@ import {
   TextInput,
   Select,
   ScrollArea,
+  Flex,
 } from "@mantine/core";
-import { IconArrowLeft, IconSearch } from "@tabler/icons-react";
+import { IconArrowLeft, IconSearch, IconFilter } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { notifyError } from "../lib/utils/notify";
@@ -71,6 +73,9 @@ export default function PandingAmountDetails() {
   const [projectFilter, setProjectFilter] = useState(projectParam);
   const [stateFilter, setStateFilter] = useState(stateParam);
   const [statusFilter, setStatusFilter] = useState(statusParam);
+
+  // Mobile filter toggle
+  const [filtersVisible, { toggle: toggleFilters }] = useDisclosure(false);
 
   // Project options
   const projectOptions = useMemo(() => {
@@ -188,6 +193,15 @@ export default function PandingAmountDetails() {
             {projectFilter && projectFilter !== '' && (
               <Badge color="blue" size="lg" variant="filled">{projectFilter}</Badge>
             )}
+             <Button 
+               hiddenFrom="sm" 
+               onClick={toggleFilters} 
+               variant="outline" 
+               leftSection={<IconFilter size={14} />}
+               size="compact-xs"
+               >
+               {filtersVisible ? 'Hide' : 'Filters'}
+             </Button>
           </Group>
           <Text c="dimmed" size="sm">
             View all invoices with a pending balance. Use the filters to refine the results.
@@ -204,54 +218,60 @@ export default function PandingAmountDetails() {
       </Group>
 
       {/* Filters Section */}
-      <Group gap="sm">
-        <TextInput
-          placeholder="Search invoice number..."
-          leftSection={<IconSearch size={16} />}
-          value={search}
-          onChange={(e) => setSearch(e.currentTarget.value)}
-          style={{ width: "200px" }}
-        />
-        <Select
-          placeholder="Project"
-          value={projectFilter}
-          onChange={v => setProjectFilter(v || "")}
-          data={projectOptions}
-          style={{ width: 180 }}
-          clearable={false}
-          searchable
-        />
-        <Select
-          placeholder="State"
-          value={stateFilter}
-          onChange={v => setStateFilter(v || "")}
-          data={stateOptions}
-          style={{ width: 180 }}
-          clearable={false}
-        />
-        <Select
-          placeholder="Status"
-          value={statusFilter}
-          onChange={v => setStatusFilter(v || "")}
-          data={statusOptions}
-          style={{ width: 140 }}
-          clearable={false}
-        />
-      </Group>
+      <Flex justify="space-between" align={{base: 'stretch', sm: 'center'}} direction={{ base: 'column', sm: 'row' }}>
+        <Group gap="sm" style={{ flex: 1 }} display={{ base: filtersVisible ? 'flex' : 'none', sm: 'flex' }}>
+          <TextInput
+            placeholder="Search invoice number..."
+            leftSection={<IconSearch size={16} />}
+            value={search}
+            onChange={(e) => setSearch(e.currentTarget.value)}
+            style={{ width: "200px" }}
+            w={{ base: '100%', sm: 200 }}
+          />
+          <Select
+            placeholder="Project"
+            value={projectFilter}
+            onChange={v => setProjectFilter(v || "")}
+            data={projectOptions}
+            style={{ width: 180 }}
+            w={{ base: '100%', sm: 180 }}
+            clearable={false}
+            searchable
+          />
+          <Select
+            placeholder="State"
+            value={stateFilter}
+            onChange={v => setStateFilter(v || "")}
+            data={stateOptions}
+            style={{ width: 180 }}
+            w={{ base: '100%', sm: 180 }}
+            clearable={false}
+          />
+          <Select
+            placeholder="Status"
+            value={statusFilter}
+            onChange={v => setStatusFilter(v || "")}
+            data={statusOptions}
+            style={{ width: 140 }}
+            w={{ base: '100%', sm: 140 }}
+            clearable={false}
+          />
+        </Group>
+      </Flex>
       {filteredInvoices.length > 0 ? (
         <ScrollArea h={500}>
           <Table striped highlightOnHover withTableBorder>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>Invoice No.</Table.Th>
-                <Table.Th>Invoice Date</Table.Th>
-                <Table.Th>Project</Table.Th>
-                <Table.Th>State</Table.Th>
-                <Table.Th>Basic Amount (₹)</Table.Th>
-                <Table.Th>GST Amount (₹)</Table.Th>
-                <Table.Th>Total Amount (₹)</Table.Th>
-                <Table.Th>Net Payable (₹)</Table.Th>
-                <Table.Th>Amount Paid (₹)</Table.Th>
+                <Table.Th visibleFrom="sm">Invoice Date</Table.Th>
+                <Table.Th visibleFrom="sm">Project</Table.Th>
+                <Table.Th visibleFrom="sm">State</Table.Th>
+                <Table.Th visibleFrom="sm">Basic Amount (₹)</Table.Th>
+                <Table.Th visibleFrom="sm">GST Amount (₹)</Table.Th>
+                <Table.Th visibleFrom="sm">Total Amount (₹)</Table.Th>
+                <Table.Th visibleFrom="sm">Net Payable (₹)</Table.Th>
+                <Table.Th visibleFrom="sm">Amount Paid (₹)</Table.Th>
                 <Table.Th>Balance (₹)</Table.Th>
                 <Table.Th>Status</Table.Th>
               </Table.Tr>
@@ -275,14 +295,14 @@ export default function PandingAmountDetails() {
                         {invoice.invoiceNumber || "-"}
                       </Link>
                     </Table.Td>
-                    <Table.Td>{formatDateToLong(invoice.invoiceDate)}</Table.Td>
-                    <Table.Td>{invoice.project || '-'}</Table.Td>
-                    <Table.Td>{invoice.state || '-'}</Table.Td>
-                    <Table.Td>₹{formatMoney(basicAmount)}</Table.Td>
-                    <Table.Td>₹{formatMoney(gstAmount)}</Table.Td>
-                    <Table.Td>₹{formatMoney(totalAmount)}</Table.Td>
-                    <Table.Td>₹{formatMoney(netPayable)}</Table.Td>
-                    <Table.Td>₹{formatMoney(amountPaid)}</Table.Td>
+                    <Table.Td visibleFrom="sm">{formatDateToLong(invoice.invoiceDate)}</Table.Td>
+                    <Table.Td visibleFrom="sm">{invoice.project || '-'}</Table.Td>
+                    <Table.Td visibleFrom="sm">{invoice.state || '-'}</Table.Td>
+                    <Table.Td visibleFrom="sm">₹{formatMoney(basicAmount)}</Table.Td>
+                    <Table.Td visibleFrom="sm">₹{formatMoney(gstAmount)}</Table.Td>
+                    <Table.Td visibleFrom="sm">₹{formatMoney(totalAmount)}</Table.Td>
+                    <Table.Td visibleFrom="sm">₹{formatMoney(netPayable)}</Table.Td>
+                    <Table.Td visibleFrom="sm">₹{formatMoney(amountPaid)}</Table.Td>
                     <Table.Td>₹{formatMoney(balance)}</Table.Td>
                     <Table.Td>
                       <Badge color={

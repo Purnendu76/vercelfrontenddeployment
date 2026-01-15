@@ -18,8 +18,10 @@ import {
   Box,
   ScrollArea,
   Select,
+  Flex,
 } from "@mantine/core";
-import { IconArrowLeft, IconSearch, IconEye } from "@tabler/icons-react";
+import { IconArrowLeft, IconSearch, IconEye, IconFilter } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { notifyError } from "../lib/utils/notify";
@@ -106,6 +108,9 @@ export default function SelectGst() {
   const [search, setSearch] = useState("");
   const [projectFilterValue, setProjectFilterValue] = useState<string | null>(projectFilter || null);
   const [statusFilterValue, setStatusFilterValue] = useState<string | null>(null);
+
+  // Mobile filter toggle
+  const [filtersVisible, { toggle: toggleFilters }] = useDisclosure(false);
 
   // Build unique project options from invoices
   const projectOptions = useMemo(() => {
@@ -259,32 +264,47 @@ export default function SelectGst() {
               GST {gstFilter ? `₹${gstFilter}` : "All"} Invoices
             </Title>
             <Badge size="lg" circle>{visibleInvoices.length}</Badge>
+            <Button 
+               hiddenFrom="sm" 
+               onClick={toggleFilters} 
+               variant="outline" 
+               leftSection={<IconFilter size={14} />}
+               size="compact-xs"
+               >
+               {filtersVisible ? 'Hide' : 'Filters'}
+             </Button>
           </Group>
-          <Group gap="sm">
-            <TextInput
-              placeholder="Search invoice number..."
-              leftSection={<IconSearch size={16} />}
-              value={search}
-              onChange={(e) => setSearch(e.currentTarget.value)}
-              style={{ width: "200px" }}
-            />
-            <Select
-              placeholder="Filter by project"
-              value={projectFilterValue}
-              onChange={setProjectFilterValue}
-              data={projectOptions}
-              style={{ width: 160 }}
-              clearable
-            />
-            <Select
-              placeholder="Filter by status"
-              value={statusFilterValue}
-              onChange={setStatusFilterValue}
-              data={statusOptions}
-              style={{ width: 160 }}
-              clearable
-            />
-          </Group>
+          {/* Filters Section */}
+          <Flex justify="space-between" align={{base: 'stretch', sm: 'center'}} direction={{ base: 'column', sm: 'row' }}>
+            <Group gap="sm" style={{ flex: 1 }} display={{ base: filtersVisible ? 'flex' : 'none', sm: 'flex' }}>
+              <TextInput
+                placeholder="Search invoice number..."
+                leftSection={<IconSearch size={16} />}
+                value={search}
+                onChange={(e) => setSearch(e.currentTarget.value)}
+                style={{ width: "200px" }}
+                w={{ base: '100%', sm: 200 }}
+              />
+              <Select
+                placeholder="Filter by project"
+                value={projectFilterValue}
+                onChange={setProjectFilterValue}
+                data={projectOptions}
+                style={{ width: 160 }}
+                w={{ base: '100%', sm: 160 }}
+                clearable
+              />
+              <Select
+                placeholder="Filter by status"
+                value={statusFilterValue}
+                onChange={setStatusFilterValue}
+                data={statusOptions}
+                style={{ width: 160 }}
+                w={{ base: '100%', sm: 160 }}
+                clearable
+              />
+            </Group>
+          </Flex>
         </Group>
 
         {/* Top Row: Total GST & Top 5 Invoices */}
@@ -399,10 +419,10 @@ export default function SelectGst() {
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>Invoice</Table.Th>
-                    <Table.Th>Invoice Date</Table.Th>
+                    <Table.Th visibleFrom="sm">Invoice Date</Table.Th>
                     <Table.Th>GST Amount (₹)</Table.Th>
                     <Table.Th>Status</Table.Th>
-                    <Table.Th>Project</Table.Th>
+                    <Table.Th visibleFrom="sm">Project</Table.Th>
                     <Table.Th>Action</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
@@ -417,7 +437,7 @@ export default function SelectGst() {
                           {invoice.invoiceNumber || "-"}
                         </Link>
                       </Table.Td>
-                      <Table.Td>{formatDateToLong(invoice.invoiceDate)}</Table.Td>
+                      <Table.Td visibleFrom="sm">{formatDateToLong(invoice.invoiceDate)}</Table.Td>
                       <Table.Td fw={700} c="blue">₹{formatMoney(invoice.invoiceGstAmount)}</Table.Td>
                       <Table.Td>
                         <Badge
@@ -434,7 +454,7 @@ export default function SelectGst() {
                           {invoice.status || "-"}
                         </Badge>
                       </Table.Td>
-                      <Table.Td>
+                      <Table.Td visibleFrom="sm">
                         {Array.isArray(invoice.project) ? (
                           <Group gap="xs">
                             {invoice.project.map((proj) => (
@@ -468,6 +488,10 @@ export default function SelectGst() {
             </Text>
           )}
         </Card>
+      </Stack>
+    </Container>
+  );
+}
       </Stack>
     </Container>
   );

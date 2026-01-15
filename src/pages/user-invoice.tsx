@@ -186,13 +186,13 @@ export default function User_invoice() {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>Invoice No.</Table.Th>
-                <Table.Th>Invoice Date</Table.Th>
-                <Table.Th>Basic Amount (₹)</Table.Th>
-                <Table.Th>GST Amount (₹)</Table.Th>
-                <Table.Th>Total Amount (₹)</Table.Th>
-                <Table.Th>Total Deduction (₹)</Table.Th>
-                <Table.Th>Net Payable (₹)</Table.Th>
-                <Table.Th>Amount Paid (₹)</Table.Th>
+                <Table.Th visibleFrom="sm">Invoice Date</Table.Th>
+                <Table.Th visibleFrom="sm">Basic Amount (₹)</Table.Th>
+                <Table.Th visibleFrom="sm">GST Amount (₹)</Table.Th>
+                <Table.Th visibleFrom="sm">Total Amount (₹)</Table.Th>
+                <Table.Th visibleFrom="sm">Total Deduction (₹)</Table.Th>
+                <Table.Th visibleFrom="sm">Net Payable (₹)</Table.Th>
+                <Table.Th visibleFrom="sm">Amount Paid (₹)</Table.Th>
                 <Table.Th>Balance (₹)</Table.Th>
                 <Table.Th>Status</Table.Th>
                 <Table.Th>Action</Table.Th>
@@ -218,17 +218,17 @@ export default function User_invoice() {
                         {invoice.invoiceNumber}
                       </Link>
                     </Table.Td>
-                    <Table.Td>
+                    <Table.Td visibleFrom="sm">
                       {invoice.invoiceDate
                         ? invoice.invoiceDate.toLocaleDateString()
                         : "-"}
                     </Table.Td>
-                    <Table.Td>₹{formatMoney(basicAmount)}</Table.Td>
-                    <Table.Td>₹{formatMoney(gstAmount)}</Table.Td>
-                    <Table.Td>₹{formatMoney(totalAmount)}</Table.Td>
-                    <Table.Td>₹{formatMoney(totalDeduction)}</Table.Td>
-                    <Table.Td>₹{formatMoney(netPayable)}</Table.Td>
-                    <Table.Td>₹{formatMoney(amountPaid)}</Table.Td>
+                    <Table.Td visibleFrom="sm">₹{formatMoney(basicAmount)}</Table.Td>
+                    <Table.Td visibleFrom="sm">₹{formatMoney(gstAmount)}</Table.Td>
+                    <Table.Td visibleFrom="sm">₹{formatMoney(totalAmount)}</Table.Td>
+                    <Table.Td visibleFrom="sm">₹{formatMoney(totalDeduction)}</Table.Td>
+                    <Table.Td visibleFrom="sm">₹{formatMoney(netPayable)}</Table.Td>
+                    <Table.Td visibleFrom="sm">₹{formatMoney(amountPaid)}</Table.Td>
                     <Table.Td>₹{formatMoney(balance)}</Table.Td>
                     <Table.Td>
                       <Badge
