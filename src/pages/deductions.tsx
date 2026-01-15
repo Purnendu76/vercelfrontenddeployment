@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import { Table, Loader, Title, Text, Paper, Group, TextInput, Select, Button, Badge } from "@mantine/core";
+import { Table, Loader, Title, Text, Paper, Group, TextInput, Select, Button, Badge, Flex } from "@mantine/core";
 // Status color mapping (same as dashboard)
 const statusHexColors: Record<string, string> = {
   Paid: "#20c997",
@@ -11,7 +11,8 @@ const statusHexColors: Record<string, string> = {
   "Credit Note Issued": "#FFBF00",
 };
 import Cookies from "js-cookie";
-import { IconSearch, IconArrowLeft } from "@tabler/icons-react";
+import { IconSearch, IconArrowLeft, IconFilter } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
 import type { Invoice } from "../interface/Invoice";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -159,6 +160,9 @@ export default function DeductionsPage() {
     return 'all';
   });
 
+  // Mobile filter toggle
+  const [filtersVisible, { toggle: toggleFilters }] = useDisclosure(false);
+
   // Apply dashboard filters to invoices
   const filtered = useMemo(() => {
     return invoices.filter((inv) => {
@@ -204,7 +208,18 @@ export default function DeductionsPage() {
   return (
     <Paper p="md" shadow="xs" radius="md">
       <Group justify="space-between" align="flex-start" mb="md">
-        <Title order={3}>{deductionType} Deductions</Title>
+        <Group>
+           <Title order={3}>{deductionType} Deductions</Title>
+           <Button 
+             hiddenFrom="sm" 
+             onClick={toggleFilters} 
+             variant="outline" 
+             leftSection={<IconFilter size={14} />}
+             size="compact-xs"
+             >
+             {filtersVisible ? 'Hide' : 'Filters'}
+           </Button>
+        </Group>
         
         <Button
           variant="subtle"
@@ -216,41 +231,47 @@ export default function DeductionsPage() {
         </Button>
       </Group>
       {/* Filter UI (like Overdue page) */}
-      <Group gap="sm" mb="md">
-        <TextInput
-          placeholder="Search invoice number..."
-          leftSection={<IconSearch size={16} />}
-          value={search}
-          onChange={(e) => setSearch(e.currentTarget.value)}
-          style={{ width: "200px" }}
-        />
-        <Select
-          placeholder="Project"
-          value={projectFilter}
-          onChange={v => setProjectFilter(v || "all")}
-          data={projectOptions}
-          style={{ width: 180 }}
-          clearable={false}
-          searchable
-        />
-        <Select
-          placeholder="State"
-          value={stateFilter}
-          onChange={v => setStateFilter(v || "all")}
-          data={stateOptions}
-          style={{ width: 180 }}
-          clearable={false}
-          searchable
-        />
-        <Select
-          placeholder="Status"
-          value={statusFilter}
-          onChange={v => setStatusFilter(v || "all")}
-          data={statusOptions}
-          style={{ width: 180 }}
-          clearable={false}
-        />
-      </Group>
+      <Flex justify="space-between" align={{base: 'stretch', sm: 'center'}} direction={{ base: 'column', sm: 'row' }} mb="md">
+        <Group gap="sm" style={{ flex: 1 }} display={{ base: filtersVisible ? 'flex' : 'none', sm: 'flex' }}>
+          <TextInput
+            placeholder="Search invoice number..."
+            leftSection={<IconSearch size={16} />}
+            value={search}
+            onChange={(e) => setSearch(e.currentTarget.value)}
+            style={{ width: "200px" }}
+            w={{ base: '100%', sm: 200 }}
+          />
+          <Select
+            placeholder="Project"
+            value={projectFilter}
+            onChange={v => setProjectFilter(v || "all")}
+            data={projectOptions}
+            style={{ width: 180 }}
+            w={{ base: '100%', sm: 180 }}
+            clearable={false}
+            searchable
+          />
+          <Select
+            placeholder="State"
+            value={stateFilter}
+            onChange={v => setStateFilter(v || "all")}
+            data={stateOptions}
+            style={{ width: 180 }}
+            w={{ base: '100%', sm: 180 }}
+            clearable={false}
+            searchable
+          />
+          <Select
+            placeholder="Status"
+            value={statusFilter}
+            onChange={v => setStatusFilter(v || "all")}
+            data={statusOptions}
+            style={{ width: 180 }}
+            w={{ base: '100%', sm: 180 }}
+            clearable={false}
+          />
+        </Group>
+      </Flex>
       {loading ? (
         <Loader />
       ) : filtered.length === 0 ? (
@@ -260,9 +281,9 @@ export default function DeductionsPage() {
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Invoice No.</Table.Th>
-              <Table.Th>Project</Table.Th>
-              <Table.Th>State</Table.Th>
-              <Table.Th>Invoice Date</Table.Th>
+              <Table.Th visibleFrom="sm">Project</Table.Th>
+              <Table.Th visibleFrom="sm">State</Table.Th>
+              <Table.Th visibleFrom="sm">Invoice Date</Table.Th>
               <Table.Th>{deductionType} Amount (₹)</Table.Th>
               <Table.Th>Status</Table.Th>
             </Table.Tr>
@@ -283,9 +304,9 @@ export default function DeductionsPage() {
                       : "-"
                     }
                 </Table.Td>
-                <Table.Td>{inv.project || "-"}</Table.Td>
-                <Table.Td>{inv.state || "-"}</Table.Td>
-                <Table.Td>{inv.invoiceDate ? (() => {
+                <Table.Td visibleFrom="sm">{inv.project || "-"}</Table.Td>
+                <Table.Td visibleFrom="sm">{inv.state || "-"}</Table.Td>
+                <Table.Td visibleFrom="sm">{inv.invoiceDate ? (() => {
                   const d = typeof inv.invoiceDate === 'string' ? new Date(inv.invoiceDate) : inv.invoiceDate;
                   if (isNaN(d.getTime())) return "-";
                   const day = d.getDate();

@@ -580,15 +580,15 @@ export default function Admin_invoice() {
 
         <Group mt={{ base: 'md', md: 0 }}>
           <Button variant="outline" onClick={() => setImportModalOpen(true)} leftSection={<IconUpload size={14} />}>
-            Import <Text span visibleFrom="sm"> from CSV/XLSX</Text>
+            Import <Text span visibleFrom="sm"><span> </span>from CSV/XLSX</Text>
           </Button>
 
           <Button variant="outline" onClick={handleExport} leftSection={<IconDownload size={14} />}>
-            Export <Text span visibleFrom="sm"> to CSV/XLSX</Text>
+            Export <Text span visibleFrom="sm"><span> </span>to CSV/XLSX</Text>
           </Button>
 
           <Button leftSection={<IconPlus size={16} />} onClick={handleNew}>
-            <Text span visibleFrom="sm">New </Text>Invoice
+            <Text span visibleFrom="sm">New <span> </span></Text> Invoice
           </Button>
           {selectedRows.length > 0 && (
             <Button
@@ -626,14 +626,14 @@ export default function Admin_invoice() {
                 </Table.Th>
                 <Table.Th>Invoice No.</Table.Th>
                 <Table.Th>Invoice Date</Table.Th>
-                <Table.Th>Basic Amount (₹)</Table.Th>
-                <Table.Th>GST Amount (₹)</Table.Th>
-                <Table.Th>Total Amount (₹)</Table.Th>
-                <Table.Th>Total Deduction (₹)</Table.Th>
-                <Table.Th>Net Payable (₹)</Table.Th>
-                <Table.Th>Amount Paid (₹)</Table.Th>
-                <Table.Th>Balance (₹)</Table.Th>
-                <Table.Th>Status</Table.Th>
+                <Table.Th visibleFrom="sm">Basic Amount (₹)</Table.Th>
+                <Table.Th visibleFrom="sm">GST Amount (₹)</Table.Th>
+                <Table.Th visibleFrom="sm">Total Amount (₹)</Table.Th>
+                <Table.Th visibleFrom="sm">Total Deduction (₹)</Table.Th>
+                <Table.Th visibleFrom="sm">Net Payable (₹)</Table.Th>
+                <Table.Th visibleFrom="sm">Amount Paid (₹)</Table.Th>
+                <Table.Th visibleFrom="sm">Balance (₹)</Table.Th>
+                <Table.Th visibleFrom="sm">Status</Table.Th>
                 <Table.Th>Action</Table.Th>
               </Table.Tr>
             </Table.Thead>
@@ -672,14 +672,14 @@ export default function Admin_invoice() {
                       </Link>
                     </Table.Td>
                     <Table.Td>{formatDateToLong(invoice.invoiceDate)}</Table.Td>
-                    <Table.Td>₹{formatMoney(basicAmount)}</Table.Td>
-                    <Table.Td>₹{formatMoney(gstAmount)}</Table.Td>
-                    <Table.Td>₹{formatMoney(totalAmount)}</Table.Td>
-                    <Table.Td>₹{formatMoney(totalDeduction)}</Table.Td>
-                    <Table.Td>₹{formatMoney(netPayable)}</Table.Td>
-                    <Table.Td>₹{formatMoney(amountPaid)}</Table.Td>
-                    <Table.Td>₹{formatMoney(balance)}</Table.Td>
-                    <Table.Td>
+                    <Table.Td visibleFrom="sm">₹{formatMoney(basicAmount)}</Table.Td>
+                    <Table.Td visibleFrom="sm">₹{formatMoney(gstAmount)}</Table.Td>
+                    <Table.Td visibleFrom="sm">₹{formatMoney(totalAmount)}</Table.Td>
+                    <Table.Td visibleFrom="sm">₹{formatMoney(totalDeduction)}</Table.Td>
+                    <Table.Td visibleFrom="sm">₹{formatMoney(netPayable)}</Table.Td>
+                    <Table.Td visibleFrom="sm">₹{formatMoney(amountPaid)}</Table.Td>
+                    <Table.Td visibleFrom="sm">₹{formatMoney(balance)}</Table.Td>
+                    <Table.Td visibleFrom="sm">
                       <Badge
                         color={
                           invoice.status === "Paid"

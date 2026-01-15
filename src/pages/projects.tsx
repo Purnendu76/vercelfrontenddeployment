@@ -23,6 +23,8 @@ import {
   TextInput,
   Select,
   ScrollArea,
+  Box,
+  Card,
 } from "@mantine/core";
 import { IconSearch, IconPlus } from "@tabler/icons-react";
 import axios from "axios";
@@ -195,52 +197,100 @@ export function AddProject() {
           No projects found.
         </Text>
       ) : (
-        <ScrollArea>
-          <Table striped highlightOnHover withTableBorder style={{ minWidth: 800 }}>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Project</Table.Th>
-                <Table.Th>Mode of Project</Table.Th>
-                <Table.Th>Invoices</Table.Th>
-                <Table.Th>Total Amount (₹)</Table.Th>
-                <Table.Th>Paid (₹)</Table.Th>
-                <Table.Th>Balance (₹)</Table.Th>
-                <Table.Th>Action</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {filtered.map((proj) => (
-                <Table.Tr key={proj.project}>
-                  <Table.Td>
-                    <Badge
-                      color="blue"
-                      variant="light"
-                      component={Link}
-                      to={`/project/${encodeURIComponent(proj.project)}`}
-                      style={{ cursor: "pointer", textDecoration: "none" }}
-                    >
-                      {proj.project}
-                    </Badge>
-                  </Table.Td>
-                  <Table.Td>{projectModeMap[proj.project] || "-"}</Table.Td>
-                  <Table.Td>{proj.invoiceCount}</Table.Td>
-                  <Table.Td>₹{formatMoney(proj.totalAmount)}</Table.Td>
-                  <Table.Td>₹{formatMoney(proj.paidAmount)}</Table.Td>
-                  <Table.Td>₹{formatMoney(proj.balance)}</Table.Td>
-                  <Table.Td>
-                    <Button
-                      size="xs"
-                      variant="light"
-                      onClick={() => navigate(`/project/${encodeURIComponent(proj.project)}`)}
-                    >
-                      View Invoices
-                    </Button>
-                  </Table.Td>
-                </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
-        </ScrollArea>
+        <>
+        <Box visibleFrom="sm">
+          <ScrollArea>
+           <Table striped highlightOnHover withTableBorder style={{ minWidth: 800 }}>
+             <Table.Thead>
+               <Table.Tr>
+                 <Table.Th>Project</Table.Th>
+                 <Table.Th>Mode of Project</Table.Th>
+                 <Table.Th>Invoices</Table.Th>
+                 <Table.Th>Total Amount (₹)</Table.Th>
+                 <Table.Th>Paid (₹)</Table.Th>
+                 <Table.Th>Balance (₹)</Table.Th>
+                 <Table.Th>Action</Table.Th>
+               </Table.Tr>
+             </Table.Thead>
+             <Table.Tbody>
+               {filtered.map((proj) => (
+                 <Table.Tr key={proj.project}>
+                   <Table.Td>
+                     <Badge
+                       color="blue"
+                       variant="light"
+                       component={Link}
+                       to={`/project/${encodeURIComponent(proj.project)}`}
+                       style={{ cursor: "pointer", textDecoration: "none" }}
+                     >
+                       {proj.project}
+                     </Badge>
+                   </Table.Td>
+                   <Table.Td>{projectModeMap[proj.project] || "-"}</Table.Td>
+                   <Table.Td>{proj.invoiceCount}</Table.Td>
+                   <Table.Td>₹{formatMoney(proj.totalAmount)}</Table.Td>
+                   <Table.Td>₹{formatMoney(proj.paidAmount)}</Table.Td>
+                   <Table.Td>₹{formatMoney(proj.balance)}</Table.Td>
+                   <Table.Td>
+                     <Button
+                       size="xs"
+                       variant="light"
+                       onClick={() => navigate(`/project/${encodeURIComponent(proj.project)}`)}
+                     >
+                       View Invoices
+                     </Button>
+                   </Table.Td>
+                 </Table.Tr>
+               ))}
+             </Table.Tbody>
+           </Table>
+          </ScrollArea>
+        </Box>
+
+        {/* Card List - Mobile View */}
+        <Box hiddenFrom="sm">
+          {filtered.length > 0 ? (
+            filtered.map((proj) => (
+              <Card key={proj.project} shadow="sm" padding="md" radius="md" withBorder mb="sm">
+                <Group justify="space-between" mb="xs">
+                   <Badge
+                     color="blue"
+                     variant="light"
+                     component={Link}
+                     to={`/project/${encodeURIComponent(proj.project)}`}
+                     style={{ cursor: "pointer", textDecoration: "none" }}
+                   >
+                     {proj.project}
+                   </Badge>
+                   <Text size="xs" c="dimmed">{projectModeMap[proj.project] || "-"}</Text>
+                </Group>
+                
+                <Group justify="space-between" mb="xs">
+                  <Text size="sm">Invoices: {proj.invoiceCount}</Text>
+                  <Text size="sm" fw={500}>Total: ₹{formatMoney(proj.totalAmount)}</Text>
+                </Group>
+                 
+                <Group justify="space-between" mb="md">
+                  <Text size="sm" c="green">Paid: ₹{formatMoney(proj.paidAmount)}</Text>
+                  <Text size="sm" c="red">Bal: ₹{formatMoney(proj.balance)}</Text>
+                </Group>
+
+                <Button
+                  fullWidth
+                  variant="light"
+                  onClick={() => navigate(`/project/${encodeURIComponent(proj.project)}`)}
+                >
+                  View Invoices
+                </Button>
+              </Card>
+            ))
+          ) : (
+             <Text ta="center" c="dimmed" mt="xl">
+               No projects found.
+             </Text>
+          )}
+        </Box>
+        </>
       )}
 
       {/* Add Project Modal (same pattern as Users page modal) */}
