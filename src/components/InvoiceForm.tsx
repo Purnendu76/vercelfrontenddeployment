@@ -430,11 +430,11 @@ export default function InvoiceForm({
                   {userRole === "Admin" ? (
                     <Select
                       label="Project"
-                      data={adminProjects}
+                      data={ADMIN_PROJECTS}
                       value={project}
                       onChange={handleProjectChange}
                       required
-                      styles={dropdownStyles}
+                      styles={DROPDOWN_STYLES}
                     />
                   ) : (
                     <TextInput
@@ -446,11 +446,11 @@ export default function InvoiceForm({
                   )}
                   <Select
                     label="Mode"
-                    data={modes}
+                    data={MODES}
                     value={mode}
                     onChange={setMode}
                     required
-                    styles={dropdownStyles}
+                    styles={DROPDOWN_STYLES}
                     disabled
                   />
                 </SimpleGrid>
@@ -458,28 +458,28 @@ export default function InvoiceForm({
                 <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
                   <Select
                     label="State"
-                    data={states}
+                    data={STATES}
                     value={state}
                     onChange={setState}
                     required
-                    styles={dropdownStyles}
+                    styles={DROPDOWN_STYLES}
                   />
                   <Select
                     label="Bill Category"
-                    data={billCategories}
+                    data={BILL_CATEGORIES}
                     value={billCategory}
                     onChange={setBillCategory}
                     required
-                    styles={dropdownStyles}
+                    styles={DROPDOWN_STYLES}
                   />
                 </SimpleGrid>
 
                 <Select
                   label="Milestone"
-                  data={milestones}
+                  data={MILESTONES}
                   value={milestone}
                   onChange={setMilestone}
-                  styles={dropdownStyles}
+                  styles={DROPDOWN_STYLES}
                 />
 
                 <Divider label="Invoice Details" labelPosition="left" mt="xs" />
@@ -535,11 +535,11 @@ export default function InvoiceForm({
                 <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
                   <Select
                     label="GST %"
-                    data={gstOptions}
+                    data={GST_OPTIONS}
                     value={gstPercentage}
                     onChange={setGstPercentage}
                     required
-                    styles={dropdownStyles}
+                    styles={DROPDOWN_STYLES}
                   />
                   <NumberInput
                     label="GST Amount"
@@ -627,15 +627,12 @@ export default function InvoiceForm({
                 />
                 <Select
                   label="Status"
-                  data={statuses.map(s => ({
-                    value: s,
-                    label: s.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')
-                  }))}
+                  data={STATUS_OPTIONS}
                   value={status}
                   onChange={setStatus}
                   required
                   allowDeselect={false}
-                  styles={dropdownStyles}
+                  styles={DROPDOWN_STYLES}
                   color={isPaid ? "green" : "blue"}
                 />
                 <Textarea
