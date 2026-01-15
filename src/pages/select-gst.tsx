@@ -492,7 +492,3 @@ export default function SelectGst() {
     </Container>
   );
 }
-      </Stack>
-    </Container>
-  );
-}
