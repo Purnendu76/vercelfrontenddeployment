@@ -10,7 +10,6 @@ import {
   IconClock,
   IconFilter,
   IconBell,
-  IconSearch,
   IconChartBar,
   IconDashboard,
   IconX 
@@ -26,15 +25,9 @@ import {
   Select,
   Table,
   Badge,
-  Loader,
-  SimpleGrid,
-  ScrollArea,
   Box,
   ThemeIcon,
-  rem,
   Paper,
-  RingProgress,
-  Center,
   Avatar,
   ActionIcon,
   Divider,
@@ -63,7 +56,7 @@ function OverdueBarChart({ data, project = 'All Projects' }: OverdueBarChartProp
   
   const maxRaw = Math.max(...data.map((d: OverdueBarChartData) => Math.max(d.invoiceDate, d.submissionDate))) || 1;
   
-  function getNiceMax(val) {
+  function getNiceMax(val: number) {
     if (val <= 5) return 5;
     const pow = Math.pow(10, Math.floor(Math.log10(val)));
     const n = Math.ceil(val / pow);
@@ -134,13 +127,12 @@ function OverdueBarChart({ data, project = 'All Projects' }: OverdueBarChartProp
                       height={Math.max(hInv, 2)}
                       fill="#228be6"
                       rx={4}
-                      style={{ cursor: 'pointer', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
-                      opacity={0.9}
-                      initial={{ scaleY: 0 }}
-                      animate={{ scaleY: 1 }}
-                      transition={{ duration: 0.6, delay: i * 0.08 }}
                       transform={`translate(0,${height - hInv})`}
-                      transformOrigin={`0 ${hInv}`}
+                      style={{ 
+                        cursor: 'pointer', 
+                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))',
+                        transformOrigin: `0 ${hInv}` 
+                      }}
                     />
                   </Link>
                 </Tooltip>
@@ -157,13 +149,12 @@ function OverdueBarChart({ data, project = 'All Projects' }: OverdueBarChartProp
                       height={Math.max(hSub, 2)}
                       fill="#a3cff5"
                       rx={4}
-                      style={{ cursor: 'pointer', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
-                      opacity={0.9}
-                      initial={{ scaleY: 0 }}
-                      animate={{ scaleY: 1 }}
-                      transition={{ duration: 0.6, delay: i * 0.08 + 0.04 }}
                       transform={`translate(0,${height - hSub})`}
-                      transformOrigin={`0 ${hSub}`}
+                      style={{ 
+                        cursor: 'pointer', 
+                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))',
+                        transformOrigin: `0 ${hSub}` 
+                      }}
                     />
                   </Link>
                 </Tooltip>
@@ -206,7 +197,6 @@ const deductionLabels = [
 
 // Status values
 const statusList = ['Paid', 'Under process', 'Credit Note Issued', 'Cancelled'];
-const statusColors = { 'Paid': 'teal', 'Cancelled': 'orange', 'Under process': 'blue', 'Credit Note Issued': 'gray' };
 const statusHexColors = { 'Paid': '#20c997', 'Cancelled': '#fa5252', 'Under process': '#228be6', 'Credit Note Issued': '#FFBF00' };
 
 const projectOptions = ['All Projects', 'NFS', 'GAIL', 'BGCL', 'STP', 'BHARAT NET', 'NFS AMC'];
@@ -214,7 +204,7 @@ const stateOptions = ['All States', 'West Bengal', 'Delhi', 'Bihar', 'MP', 'Kera
 const billCategoryOptions = ['', 'Service', 'Supply', 'ROW', 'AMC', 'Restoration Service', 'Restoration Supply', 'Restoration Row', 'Spares', 'Training'];
 
 function getFinancialYearOptions(currentYear = 2025, count = 5) {
-  const options = [{ value: 'all', label: 'Select Financial Year', range: null }];
+  const options: { value: string; label: string; range: Date[] | null }[] = [{ value: 'all', label: 'Select Financial Year', range: null }];
   for (let i = 0; i < count; i++) {
     const startYear = currentYear - i;
     const endYear = startYear + 1;
@@ -230,7 +220,9 @@ function getFinancialYearOptions(currentYear = 2025, count = 5) {
 const financialYearOptions = getFinancialYearOptions(2025, 5);
 
 // 1. KPI Card
-function StatCard({ title, value, icon, color }) {
+type StatCardProps = { title: string; value: string | number; icon: React.ReactNode; color: string };
+
+function StatCard({ title, value, icon, color }: StatCardProps) {
   return (
     <Paper withBorder p="md" radius="md" shadow="xs">
       <Group justify="space-between">
@@ -247,7 +239,10 @@ function StatCard({ title, value, icon, color }) {
 }
 
 // 2. SVG Bar Chart
-function BarChart({ data }) {
+type BarChartData = { name: string; raised: number; approved: number };
+type BarChartProps = { data: BarChartData[] };
+
+function BarChart({ data }: BarChartProps) {
   if (!data.length) return <Text c="dimmed" size="sm" ta="center" py="xl">No data available</Text>;
   const max = Math.max(...data.map(d => d.raised)) || 100;
   const height = 180;
@@ -287,7 +282,10 @@ function BarChart({ data }) {
 }
 
 // 3. Pie Chart
-function PieChart({ data, projectFilter }) {
+type PieChartData = { label: string; value: number; color: string };
+type PieChartProps = { data: PieChartData[]; projectFilter?: string };
+
+function PieChart({ data, projectFilter }: PieChartProps) {
   const chartData = (data || []).map((d) => ({ name: d.label, value: d.value, color: d.color }));
   const total = chartData.reduce((acc, d) => acc + d.value, 0);
   const chartLabel = `${total} Invoices`;
@@ -297,9 +295,9 @@ function PieChart({ data, projectFilter }) {
   }));
 
   const pieProps = {
-    onClick: (segment) => {
+    onClick: (segment: { name: string }) => {
       if (!segment || !segment.name) return;
-      let statusParam = segment.name.toLowerCase() === 'under process' ? 'Under%20Process' : encodeURIComponent(segment.name);
+      const statusParam = segment.name.toLowerCase() === 'under process' ? 'Under%20Process' : encodeURIComponent(segment.name);
       let url = `/select-status?status=${statusParam}`;
       if (projectFilter && projectFilter !== 'All Projects') {
         url += `&project=${encodeURIComponent(projectFilter)}`;
@@ -347,13 +345,13 @@ function PieChart({ data, projectFilter }) {
 
 const Dashboard2 = () => {
   const [invoices, setInvoices] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true); // Unused
   
   // Filter States
   const [project, setProject] = useState('All Projects');
   const [state, setState] = useState('All States');
   const [billCategory, setBillCategory] = useState('');
-  const [dateRange, setDateRange] = useState([null, null]);
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
   const [financialYear, setFinancialYear] = useState('all');
   const statusOptionsList = [{ value: 'all', label: 'Status' }, ...statusList.map(s => ({ value: s, label: s }))];
   const [statusFilter, setStatusFilter] = useState<string[]>(['all']);
@@ -382,7 +380,7 @@ const Dashboard2 = () => {
 
   useEffect(() => {
     const fetchInvoices = async () => {
-      setLoading(true);
+      // setLoading(true);
       try {
         const token = Cookies.get('token');
         const res = await axios.get('/api/v1/invoices', {
@@ -390,9 +388,10 @@ const Dashboard2 = () => {
         });
         setInvoices(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
+        console.error(err);
         setInvoices([]);
       } finally {
-        setLoading(false);
+        // setLoading(false);
       }
     };
     fetchInvoices();
@@ -489,17 +488,17 @@ const Dashboard2 = () => {
   }, [filteredInvoices]);
 
   const invoiceStatus = useMemo(() => {
-    const statusMap = {};
+    const statusMap: Record<string, number> = {};
     statusList.forEach(s => { statusMap[s] = 0; });
     filteredInvoices.forEach(inv => {
       const s = String(inv.status || '').trim();
-      if (statusMap.hasOwnProperty(s)) statusMap[s]++;
+      if (Object.prototype.hasOwnProperty.call(statusMap, s)) statusMap[s]++;
     });
-    return Object.entries(statusMap).map(([label, value]) => ({ label, value, color: statusHexColors[label] }));
+    return Object.entries(statusMap).map(([label, value]) => ({ label, value, color: statusHexColors[label as keyof typeof statusHexColors] }));
   }, [filteredInvoices]);
 
   const projectRevenue = useMemo(() => {
-    const map = {};
+    const map: Record<string, { raised: number; approved: number }> = {};
     filteredInvoices.forEach(inv => {
       const proj = inv.project || 'Unknown';
       if (!map[proj]) map[proj] = { raised: 0, approved: 0 };
@@ -550,7 +549,6 @@ const Dashboard2 = () => {
                 size="sm"
                 radius="md"
                 clearable={project !== 'All Projects'}
-                withinPortal
                 searchable
               />
               <Select
@@ -562,7 +560,6 @@ const Dashboard2 = () => {
                 size="sm"
                 radius="md"
                 clearable={state !== 'All States'}
-                withinPortal
                 searchable
               />
               <Select
@@ -574,7 +571,6 @@ const Dashboard2 = () => {
                 size="sm"
                 radius="md"
                 clearable={financialYear !== 'all'}
-                withinPortal
               />
               <Select
                 placeholder="Status"
@@ -594,12 +590,11 @@ const Dashboard2 = () => {
                 size="sm"
                 radius="md"
                 clearable={statusFilter[0] !== 'all'}
-                withinPortal
               />
               <DatePickerInput
                 type="range"
                 value={dateRange}
-                onChange={setDateRange}
+                onChange={(val) => setDateRange(val as [Date | null, Date | null])}
                 placeholder="Select date range"
                 w={180}
                 size="sm"
@@ -610,7 +605,6 @@ const Dashboard2 = () => {
                 maxDate={new Date(2100, 11, 31)}
                 minDate={new Date(2000, 0, 1)}
                 label={null}
-                withinPortal
                 disabled={financialYear !== 'all'}
               />
               
@@ -711,7 +705,6 @@ const Dashboard2 = () => {
                 data={billCategoryOptions.map(opt => ({ value: opt || '', label: opt || 'All' }))}
                 value={billCategory === '' ? '' : billCategory}
                 onChange={(v) => setBillCategory(v ?? '')}
-                renderValue={(selected) => selected === '' ? 'All' : selected}
                 placeholder="Bill Category"
                 mb={8}
                 w="100%"
